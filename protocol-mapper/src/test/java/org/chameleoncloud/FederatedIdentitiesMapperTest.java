@@ -19,6 +19,7 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserProvider;
 import org.keycloak.models.UserSessionModel;
+import org.keycloak.protocol.ProtocolMapperUtils;
 import org.keycloak.protocol.oidc.mappers.FullNameMapper;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
@@ -53,9 +54,9 @@ public class FederatedIdentitiesMapperTest {
     public void shouldHaveProperties() {
         final List<String> configPropertyNames = new FederatedIdentitiesMapper().getConfigProperties().stream()
                 .map(ProviderConfigProperty::getName).collect(Collectors.toList());
-        assertThat(configPropertyNames).containsExactly(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME,
-                OIDCAttributeMapperHelper.INCLUDE_IN_ID_TOKEN, OIDCAttributeMapperHelper.INCLUDE_IN_ACCESS_TOKEN,
-                OIDCAttributeMapperHelper.INCLUDE_IN_USERINFO);
+        assertThat(configPropertyNames).containsExactly(ProtocolMapperUtils.MULTIVALUED,
+                OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME, OIDCAttributeMapperHelper.INCLUDE_IN_ID_TOKEN,
+                OIDCAttributeMapperHelper.INCLUDE_IN_ACCESS_TOKEN, OIDCAttributeMapperHelper.INCLUDE_IN_USERINFO);
     }
 
     @Test
