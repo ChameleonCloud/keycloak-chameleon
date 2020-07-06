@@ -1,0 +1,12 @@
+<jboss-deployment-structure>
+    <deployment>
+        <dependencies>
+            <!-- These should match the runtime dependencies in pom.xml -->
+            <module name="org.keycloak.keycloak-core"/>
+            <module name="org.keycloak.keycloak-server-spi"/>
+            <module name="org.keycloak.keycloak-server-spi-private"/>
+            <module name="org.keycloak.keycloak-services"/>
+            <module name="javax.ws.rs.api"/>
+        </dependencies>
+    </deployment>
+</jboss-deployment-structure>

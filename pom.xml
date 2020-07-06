@@ -90,4 +90,12 @@
         <module>protocol-mapper</module>
     </modules>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub ChameleonCloud Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/ChameleonCloud/keycloak-chameleon</url>
+        </repository>
+    </distributionManagement>
+
 </project>
