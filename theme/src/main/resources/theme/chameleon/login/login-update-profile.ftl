@@ -12,7 +12,7 @@
                     <label for="email" class="${properties.kcLabelClass!}">${msg("email")}</label>
                 </div>
                 <div class="${properties.kcInputWrapperClass!}">
-                    <input type="text" id="email" name="email" value="${(user.email!'')}" class="${properties.kcInputClass!}" disabled/>
+                    <input type="text" id="email" name="email" value="${(user.email!'')}" class="${properties.kcInputClass!}"/>
                 </div>
             </div>
 
