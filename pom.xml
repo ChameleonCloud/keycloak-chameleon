@@ -88,6 +88,7 @@
 
     <modules>
         <module>protocol-mapper</module>
+        <module>theme</module>
     </modules>
 
     <distributionManagement>

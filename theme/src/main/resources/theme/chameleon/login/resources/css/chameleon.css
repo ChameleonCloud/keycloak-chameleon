@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
+
+body {
+  font-family: 'Source Sans Pro',Helvetica,Arial,sans-serif;
+}
+
+.zocial,
+a.zocial,
+.login-pf-page .login-pf-social-link a {
+  background: #74a93c;
+  color: #ffffff;
+}
+.zocial:hover {
+  background: #5a832f !important;
+}
+
+.login-pf {
+  background: none;
+}
+
+.login-pf body {
+  background-image: url(../img/bg.jpg);
+}
+
+.login-pf-page {
+  padding-top: 0;
+}
+
+.login-pf-page-header {
+  background-image: url(../img/nav-bg.jpg);
+  height: 70px;
+}
+
+#kc-header-wrapper {
+  background: url(../img/logo.svg) no-repeat center;
+  background-size: 206px;
+  text-indent: -99999px;
+  padding: 0;
+  height: 100%;
+}
+
+.login-pf-page .login-pf-header {
+  margin-bottom: 30px;
+}
+
+#kc-form {
+  display: flex;
+}
+
+.login-pf-page .login-pf-social-section {
+  -ms-flex: 0 1 100%;
+  flex: 0 1 100%;
+  max-width: 100%;
+}
+
+.login-pf-page .login-pf-social-section:first-of-type {
+  border-right: 0;
+  margin-right: 0;
+}
+
+.login-pf-page .login-pf-social-section:last-of-type {
+  border-left: 0;
+  margin-left: 0;
+}

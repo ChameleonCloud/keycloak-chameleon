@@ -1,0 +1,6 @@
+{
+  "themes": [{
+      "name" : "chameleon",
+      "types": [ "login" ]
+  }]
+}
