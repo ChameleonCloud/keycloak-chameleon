@@ -1,5 +1,6 @@
 package org.chameleoncloud;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -18,6 +19,7 @@ import org.keycloak.models.utils.FormMessage;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.services.messages.Messages;
 import org.keycloak.services.resources.AttributeFormDataProcessor;
 import org.keycloak.services.validation.Validation;
 
@@ -48,7 +50,7 @@ public class ChameleonUpdateProfile extends UpdateProfile {
         final UserModel user = context.getUser();
         final RealmModel realm = context.getRealm();
 
-        final List<FormMessage> errors = Validation.validateUpdateProfileForm(realm, formData);
+        final List<FormMessage> errors = this.validateForm(formData);
         if (errors != null && !errors.isEmpty()) {
             final LoginFormsProvider form = context.form()
                 .setErrors(errors)
@@ -67,6 +69,28 @@ public class ChameleonUpdateProfile extends UpdateProfile {
 
         context.success();
 
+    }
+
+    private List<FormMessage> validateForm(MultivaluedMap<String, String> formData) {
+        List<FormMessage> errors = new ArrayList<>();
+
+        if (Validation.isBlank(formData.getFirst(Validation.FIELD_FIRST_NAME))) {
+            errors.add(new FormMessage(Validation.FIELD_FIRST_NAME, Messages.MISSING_FIRST_NAME));
+        }
+
+        if (Validation.isBlank(formData.getFirst(Validation.FIELD_LAST_NAME))) {
+            errors.add(new FormMessage(Validation.FIELD_LAST_NAME, Messages.MISSING_LAST_NAME));
+        }
+
+        if (Validation.isBlank(formData.getFirst(COUNTRY_OF_RESIDENCE))) {
+            errors.add(new FormMessage(COUNTRY_OF_RESIDENCE, MISSING_COUNTRY));
+        }
+
+        if (Validation.isBlank(formData.getFirst(COUNTRY_OF_CITIZENSHIP))) {
+            errors.add(new FormMessage(COUNTRY_OF_CITIZENSHIP, MISSING_CITIZENSHIP));
+        }
+
+        return errors;
     }
 
     private Response createChallenge(LoginFormsProvider form, UserModel user, RealmModel realm, MultivaluedMap<String, String> formData) {
