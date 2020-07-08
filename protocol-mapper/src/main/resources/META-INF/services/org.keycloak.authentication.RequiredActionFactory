@@ -1,2 +1,2 @@
 # List here all form actions which should be loaded by Keycloak.
-org.chameleoncloud.ChameleonRegistrationProfile
+org.chameleoncloud.ChameleonUpdateProfile
