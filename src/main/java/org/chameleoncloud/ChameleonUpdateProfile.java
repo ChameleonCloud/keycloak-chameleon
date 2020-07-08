@@ -62,13 +62,17 @@ public class ChameleonUpdateProfile extends UpdateProfile {
 
         user.setFirstName(formData.getFirst("firstName"));
         user.setLastName(formData.getFirst("lastName"));
-        user.setAttribute(COUNTRY_OF_RESIDENCE, formData.get(COUNTRY_OF_RESIDENCE));
-        user.setAttribute(COUNTRY_OF_CITIZENSHIP, formData.get(COUNTRY_OF_CITIZENSHIP));
+        user.setAttribute(COUNTRY_OF_RESIDENCE, formData.get(this.userAttributeField(COUNTRY_OF_RESIDENCE)));
+        user.setAttribute(COUNTRY_OF_CITIZENSHIP, formData.get(this.userAttributeField(COUNTRY_OF_CITIZENSHIP)));
 
         AttributeFormDataProcessor.process(formData, realm, user);
 
         context.success();
 
+    }
+
+    private String userAttributeField(String field) {
+        return "user.attributes." + field;
     }
 
     private List<FormMessage> validateForm(MultivaluedMap<String, String> formData) {
@@ -82,12 +86,16 @@ public class ChameleonUpdateProfile extends UpdateProfile {
             errors.add(new FormMessage(Validation.FIELD_LAST_NAME, Messages.MISSING_LAST_NAME));
         }
 
-        if (Validation.isBlank(formData.getFirst(COUNTRY_OF_RESIDENCE))) {
-            errors.add(new FormMessage(COUNTRY_OF_RESIDENCE, MISSING_COUNTRY));
+        final String countryField = this.userAttributeField(COUNTRY_OF_RESIDENCE);
+
+        if (Validation.isBlank(formData.getFirst(countryField))) {
+            errors.add(new FormMessage(countryField, MISSING_COUNTRY));
         }
 
-        if (Validation.isBlank(formData.getFirst(COUNTRY_OF_CITIZENSHIP))) {
-            errors.add(new FormMessage(COUNTRY_OF_CITIZENSHIP, MISSING_CITIZENSHIP));
+        final String citizenshipField = this.userAttributeField(COUNTRY_OF_CITIZENSHIP);
+
+        if (Validation.isBlank(formData.getFirst(citizenshipField))) {
+            errors.add(new FormMessage(citizenshipField, MISSING_CITIZENSHIP));
         }
 
         return errors;
