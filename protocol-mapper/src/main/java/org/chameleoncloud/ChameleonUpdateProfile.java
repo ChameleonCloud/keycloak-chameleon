@@ -21,6 +21,8 @@ import org.keycloak.services.validation.Validation;
 public class ChameleonUpdateProfile extends UpdateProfile {
     public static final String PROVIDER_ID = "chameleon-update-profile-action";
 
+    public static final String UPDATE_PROFILE_FORM = "login-update-chameleon-profile.ftl";
+
     public static final String COUNTRY_OF_RESIDENCE = "country";
 
     public static final String COUNTRY_OF_CITIZENSHIP = "citizenship";
@@ -32,7 +34,7 @@ public class ChameleonUpdateProfile extends UpdateProfile {
 
     @Override
     public void requiredActionChallenge(RequiredActionContext context) {
-        Response challenge = context.form().createResponse(RequiredAction.UPDATE_PROFILE);
+        Response challenge = context.form().createForm(UPDATE_PROFILE_FORM);
         context.challenge(challenge);
     }
 
@@ -49,7 +51,7 @@ public class ChameleonUpdateProfile extends UpdateProfile {
             Response challenge = context.form()
                     .setErrors(errors)
                     .setFormData(formData)
-                    .createResponse(RequiredAction.UPDATE_PROFILE);
+                    .createForm(UPDATE_PROFILE_FORM);
             context.challenge(challenge);
             return;
         }
@@ -72,7 +74,7 @@ public class ChameleonUpdateProfile extends UpdateProfile {
 
     @Override
     public String getDisplayText() {
-        return "Update Profile";
+        return "Update Chameleon Profile";
     }
 
     private static final ChameleonUpdateProfile SINGLETON = new ChameleonUpdateProfile();
