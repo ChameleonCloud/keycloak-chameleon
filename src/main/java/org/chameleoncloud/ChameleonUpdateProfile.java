@@ -8,13 +8,16 @@ import javax.ws.rs.core.Response;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.authentication.requiredactions.UpdateProfile;
+import org.keycloak.authentication.requiredactions.util.UpdateProfileContext;
+import org.keycloak.authentication.requiredactions.util.UserUpdateProfileContext;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
+import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.forms.login.freemarker.model.ProfileBean;
 import org.keycloak.models.utils.FormMessage;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.models.UserModel.RequiredAction;
 import org.keycloak.services.resources.AttributeFormDataProcessor;
 import org.keycloak.services.validation.Validation;
 
@@ -31,27 +34,26 @@ public class ChameleonUpdateProfile extends UpdateProfile {
 
     public static final String MISSING_CITIZENSHIP = "missingCitizenshipMessage";
 
-
     @Override
     public void requiredActionChallenge(RequiredActionContext context) {
-        Response challenge = context.form().createForm(UPDATE_PROFILE_FORM);
+        final Response challenge = this.createChallenge(context.form(), context.getUser(), context.getRealm(), null);
         context.challenge(challenge);
     }
 
     @Override
     public void processAction(RequiredActionContext context) {
-        EventBuilder event = context.getEvent();
+        final EventBuilder event = context.getEvent();
         event.event(EventType.UPDATE_PROFILE);
-        MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-        UserModel user = context.getUser();
-        RealmModel realm = context.getRealm();
+        final MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
+        final UserModel user = context.getUser();
+        final RealmModel realm = context.getRealm();
 
-        List<FormMessage> errors = Validation.validateUpdateProfileForm(realm, formData);
+        final List<FormMessage> errors = Validation.validateUpdateProfileForm(realm, formData);
         if (errors != null && !errors.isEmpty()) {
-            Response challenge = context.form()
-                    .setErrors(errors)
-                    .setFormData(formData)
-                    .createForm(UPDATE_PROFILE_FORM);
+            final LoginFormsProvider form = context.form()
+                .setErrors(errors)
+                .setFormData(formData);
+            final Response challenge = this.createChallenge(form, user, realm, formData);
             context.challenge(challenge);
             return;
         }
@@ -65,6 +67,12 @@ public class ChameleonUpdateProfile extends UpdateProfile {
 
         context.success();
 
+    }
+
+    private Response createChallenge(LoginFormsProvider form, UserModel user, RealmModel realm, MultivaluedMap<String, String> formData) {
+        final UpdateProfileContext updateProfileCtx = new UserUpdateProfileContext(realm, user);
+        form.setAttribute("user", new ProfileBean(updateProfileCtx, formData));
+        return form.createForm(UPDATE_PROFILE_FORM);
     }
 
     @Override
