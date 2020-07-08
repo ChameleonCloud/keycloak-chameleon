@@ -4,16 +4,6 @@ body {
   font-family: 'Source Sans Pro',Helvetica,Arial,sans-serif;
 }
 
-.zocial,
-a.zocial,
-.login-pf-page .login-pf-social-link a {
-  background: #74a93c;
-  color: #ffffff;
-}
-.zocial:hover {
-  background: #5a832f !important;
-}
-
 .login-pf {
   background: none;
 }
@@ -61,4 +51,8 @@ a.zocial,
 .login-pf-page .login-pf-social-section:last-of-type {
   border-left: 0;
   margin-left: 0;
+}
+
+.login-pf-page .login-pf-social-link a {
+  padding: 7px 0;  /* Same as button styles */
 }
