@@ -96,6 +96,12 @@ public class ChameleonUpdateProfile extends UpdateProfile {
     private Response createChallenge(LoginFormsProvider form, UserModel user, RealmModel realm, MultivaluedMap<String, String> formData) {
         final UpdateProfileContext updateProfileCtx = new UserUpdateProfileContext(realm, user);
         form.setAttribute("user", new ProfileBean(updateProfileCtx, formData));
+        if (formData != null) {
+            // The ProfileBean class tries to read the email from the form data,
+            // but we are not sending it (it is disabled in the form). We have
+            // to therefore spoof it here from the actual user model.
+            formData.add("email", user.getEmail());
+        }
         return form.createForm(UPDATE_PROFILE_FORM);
     }
 
