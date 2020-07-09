@@ -13,7 +13,7 @@
             If you do not yet have a TACC account, you can sign up for one at
             the <a href="https://portal.tacc.utexas.edu/" target="_blank">TACC User Portal</a>.
             If you already have a TACC account, you can link the account after
-            you have finished your registration here by going to ${url.accountUrl}.
+            you have finished your registration here by going to ${federatedIdentitesUrl}.
         </p>
         <p>
             Once you have linked your account, you should be able to log in to

@@ -1,5 +1,6 @@
 package org.chameleoncloud;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -11,11 +12,13 @@ import org.keycloak.authentication.RequiredActionFactory;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.common.util.Time;
 import org.keycloak.events.Details;
+import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.FederatedIdentityModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.services.Urls;
 
 public class ChameleonTACCRequirement implements RequiredActionProvider, RequiredActionFactory {
 
@@ -55,18 +58,20 @@ public class ChameleonTACCRequirement implements RequiredActionProvider, Require
   public void requiredActionChallenge(RequiredActionContext context) {
     final UserModel user = context.getUser();
     final RealmModel realm = context.getRealm();
-    final String identityProvider = context.getAuthenticationSession()
-        .getUserSessionNotes().get(Details.IDENTITY_PROVIDER);
+    final String identityProvider = context.getAuthenticationSession().getUserSessionNotes()
+        .get(Details.IDENTITY_PROVIDER);
     final KeycloakSession session = context.getSession();
     final Set<FederatedIdentityModel> identities = session.users().getFederatedIdentities(user, realm);
-    final Boolean isLinkedToTacc = identities.stream()
-        .anyMatch(fim -> (fim.getIdentityProvider().equals(TACC_IDP)));
+    final Boolean isLinkedToTacc = identities.stream().anyMatch(fim -> (fim.getIdentityProvider().equals(TACC_IDP)));
 
     if (identityProvider.equals(TACC_IDP) || isLinkedToTacc) {
       // Skip the form for users logging in via TACC
       context.ignore();
     } else {
-      final Response challenge = context.form().createForm(NOTIFY_REQUIREMENT_FORM);
+      final LoginFormsProvider form = context.form();
+      final URI baseUri = context.getUriInfo().getBaseUri();
+      form.setAttribute("federatedIdentitesUrl", Urls.accountFederatedIdentityPage(baseUri, realm.getName()));
+      final Response challenge = form.createForm(NOTIFY_REQUIREMENT_FORM);
       context.challenge(challenge);
     }
   }
