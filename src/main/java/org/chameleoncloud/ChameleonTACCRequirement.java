@@ -10,6 +10,7 @@ import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionFactory;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.common.util.Time;
+import org.keycloak.events.Details;
 import org.keycloak.models.FederatedIdentityModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
@@ -52,12 +53,14 @@ public class ChameleonTACCRequirement implements RequiredActionProvider, Require
   public void requiredActionChallenge(RequiredActionContext context) {
     final UserModel user = context.getUser();
     final RealmModel realm = context.getRealm();
+    final String identityProvider = context.getAuthenticationSession()
+        .getUserSessionNotes().get(Details.IDENTITY_PROVIDER);
     final KeycloakSession session = context.getSession();
     final Set<FederatedIdentityModel> identities = session.users().getFederatedIdentities(user, realm);
     final Boolean isLinkedToTacc = identities.stream().anyMatch(fim -> (fim.getIdentityProvider() == "tacc"));
 
-    if (isLinkedToTacc) {
-      // Skip the form for users already having TACC accounts
+    if (identityProvider == "tacc" || isLinkedToTacc) {
+      // Skip the form for users logging in via TACC
       this.completeAction(context);
     } else {
       final Response challenge = context.form().createForm(NOTIFY_REQUIREMENT_FORM);
