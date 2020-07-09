@@ -1,12 +1,18 @@
 # Chameleon Keycloak extension
 
-* [protocol-mapper](protocol-mapper): a custom OpenID protocol mapper, which
+This single artifact contains a few extensions to Keycloak:
+
+* A custom OpenID protocol mapper, which
   returns a list of the user's linked federated identity provider (aliases) on
   a new user-defined claim name. In order for this to be useful with multiple
   providers, you must configure it as a multi-value claim.
-* [theme](theme): a custom Keycloak theme that adds Chameleon branding and hides
+* A custom Keycloak theme that adds Chameleon branding and hides
   the username/password login flow. The theme also contains the terms and
   conditions for use of the Chameleon platform.
+* A custom required action that requires a user to update their profile
+  and set required fields that are non-standard.
+* A custom required action that displays an additional notification message to
+  users in a certain state.
 
 ## Build
 
