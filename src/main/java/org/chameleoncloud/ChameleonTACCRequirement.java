@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
-import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionFactory;
@@ -19,8 +18,6 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
 public class ChameleonTACCRequirement implements RequiredActionProvider, RequiredActionFactory {
-
-  private static final Logger log = Logger.getLogger(ChameleonTACCRequirement.class);
 
   public static final String PROVIDER_ID = "chameleon_notify_tacc_requirement";
   public static final String USER_ATTRIBUTE = PROVIDER_ID;
