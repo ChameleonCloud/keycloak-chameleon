@@ -3,11 +3,13 @@ package org.chameleoncloud;
 import java.util.Arrays;
 import java.util.List;
 
+import org.keycloak.Config;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionFactory;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.common.util.Time;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.UserModel;
 
 public class ChameleonAddJoinDate implements RequiredActionProvider, RequiredActionFactory {
