@@ -45,7 +45,7 @@ public class ChameleonAddJoinDate implements RequiredActionProvider, RequiredAct
 
   @Override
   public String getDisplayText() {
-    return "Notify of TACC requirement";
+    return "Set join date";
   }
 
   @Override
