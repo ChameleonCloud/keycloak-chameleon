@@ -37,22 +37,25 @@ body {
   display: flex;
 }
 
-.login-pf-page .login-pf-social-section {
-  -ms-flex: 0 1 100%;
-  flex: 0 1 100%;
-  max-width: 100%;
-}
-
-.login-pf-page .login-pf-social-section:first-of-type {
-  border-right: 0;
-  margin-right: 0;
-}
-
-.login-pf-page .login-pf-social-section:last-of-type {
-  border-left: 0;
+.kc-form-col {
+  flex: 1;
+  margin-left: 2rem;
+} .kc-form-col:first {
   margin-left: 0;
 }
 
-.login-pf-page .login-pf-social-link a {
-  padding: 7px 0;  /* Same as button styles */
+.kc-form-login-options {
+  margin-bottom: 1rem;
+}
+
+.btn-globus {
+  background: #335a95;
+  border: 0 !important;
+  border-radius: 0.5rem;
+  color: #ffffff;
+} .btn-globus:hover {
+  background: #27518F;
+} .btn-globus > img {
+  margin: 0 1rem 0 -1rem;
+  width: 4rem;
 }
