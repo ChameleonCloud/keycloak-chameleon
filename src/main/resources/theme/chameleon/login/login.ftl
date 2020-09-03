@@ -4,7 +4,7 @@
         ${msg("doLogIn")}
     <#elseif section = "form">
     <div id="kc-form" <#if social.providers??>class="${properties.kcContentWrapperClass!}"</#if>>
-        <#if social.providers??>
+        <#if social.providers?? && (social.providers?size > 0)>
             <#assign globus = social.providers?filter(p -> p.alias == "globus")?first>
             <#assign tacc = social.providers?filter(p -> p.alias == "tacc")?first>
             <div class="kc-form-col">
