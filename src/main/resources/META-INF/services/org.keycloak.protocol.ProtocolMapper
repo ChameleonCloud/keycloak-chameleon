@@ -1,2 +1,3 @@
 # List here all protocol mappers which should be loaded by Keycloak.
 org.chameleoncloud.FederatedIdentitiesMapper
+org.chameleoncloud.ChameleonProjectMapper
