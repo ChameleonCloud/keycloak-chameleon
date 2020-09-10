@@ -1,10 +1,13 @@
 package org.chameleoncloud;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 import org.keycloak.models.ClientSessionContext;
 import org.keycloak.models.GroupModel;
@@ -19,12 +22,17 @@ import org.keycloak.protocol.oidc.mappers.OIDCIDTokenMapper;
 import org.keycloak.protocol.oidc.mappers.UserInfoTokenMapper;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.representations.IDToken;
+import org.keycloak.util.JsonSerialization;
 
 /*
  * Our own example protocol mapper.
  */
 public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
         implements OIDCAccessTokenMapper, OIDCIDTokenMapper, UserInfoTokenMapper {
+
+    static {
+        JsonSerialization.mapper.registerModule(new Jdk8Module());
+    }
 
     /*
      * A config which keycloak uses to display a generic dialog to configure the
@@ -94,7 +102,9 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
     }
 
     protected ChameleonProject toProjectRepresentation(final GroupModel group) {
-        final Optional<String> nickname = group.getAttributes().get("nickname").stream().findFirst();
+        final Optional<String> nickname = group.getAttributes()
+            .getOrDefault("nickname", Collections.emptyList())
+            .stream().findFirst();
         return new ChameleonProject(group.getName(), nickname);
     }
 

@@ -84,6 +84,11 @@
                 <artifactId>resteasy-jaxrs</artifactId>
                 <version>${resteasy.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>2.6.3</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -119,6 +124,10 @@
         <dependency>
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
             <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
