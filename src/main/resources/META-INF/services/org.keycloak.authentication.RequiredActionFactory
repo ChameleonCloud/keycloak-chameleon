@@ -1,4 +1,3 @@
 # List here all form actions which should be loaded by Keycloak.
 org.chameleoncloud.ChameleonAddJoinDate
-org.chameleoncloud.ChameleonTACCRequirement
 org.chameleoncloud.ChameleonUpdateProfile

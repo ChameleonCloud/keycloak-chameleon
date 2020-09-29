@@ -13,8 +13,6 @@ This single artifact contains a few extensions to Keycloak:
   conditions for use of the Chameleon platform.
 * A required action that requires a user to update their profile
   and set required fields that are non-standard.
-* A required action that displays an additional notification message to
-  users in a certain state.
 
 ## Build
 
