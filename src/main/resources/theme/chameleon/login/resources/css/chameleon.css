@@ -34,28 +34,53 @@ body {
 }
 
 #kc-form {
-  display: flex;
+  text-align: center;
 }
 
-.kc-form-col {
-  flex: 1;
-  margin-left: 2rem;
-} .kc-form-col:first {
-  margin-left: 0;
+.kc-form-login-main-option {
+  margin-bottom: 2rem;
+}
+
+.kc-form-divider {
+  padding-top: .5rem;
+  margin-bottom: 1rem;
+  border-top: 1px solid rgba(0,0,0,0.2);
+  text-transform: uppercase;
 }
 
 .kc-form-login-options {
-  margin-bottom: 1rem;
+  display: flex;
+  margin-bottom: 2rem;
+} .kc-form-login-options > .btn {
+  flex: 1;
+  margin-left: 1rem;
+} .kc-form-login-options > .btn:first-child {
+  margin-left: 0;
+} .kc-form-login-options > .btn:hover {
+  /* Override default a:hover styling */
+  color: #4d5258;
+} .kc-form-login-options > .btn img {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1.5rem;
+  margin-right: .5rem;
+} .kc-form-login-options > .btn span {
+  display: inline-block;
+  vertical-align: middle;
 }
 
-.btn-globus {
-  background: #335a95;
-  border: 0 !important;
-  border-radius: 0.5rem;
-  color: #ffffff;
-} .btn-globus:hover {
-  background: #27518F;
-} .btn-globus > img {
-  margin: 0 1rem 0 -1rem;
-  width: 4rem;
+.btn {
+  border-radius: .5rem;
+}
+
+.btn-primary {
+  background-color: #74a93c !important;
+  background-image: linear-gradient(to bottom, #7eb741, #74a93c);
+  border-color: #74a93c !important;
+  color: white !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  font-size: 1.5em;
+  padding: 1rem;
+} .btn-primary:hover, .btn-primary:active {
+  background-image: none;
 }
