@@ -34,11 +34,13 @@
                         <span>TAS</span>
                     </a>
                 </div>
+                <#if client.baseUrl??>
                 <div>
                     <a href="${client.baseUrl}auth/force-password-login">
                         Looking to log in with your old Chameleon account?
                     </a>
                 </div>
+                </#if>
             <#elseif tacc != "missing">
                 <#-- "Link identity" workflow -->
                 <div class="kc-form-login-main-option">
