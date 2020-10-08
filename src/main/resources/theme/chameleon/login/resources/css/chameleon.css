@@ -69,8 +69,20 @@ body {
   vertical-align: middle;
 }
 
+/* Override default alert styling */
+.alert > p {
+  margin-bottom: 1rem;
+} .alert > p:last-child {
+  margin-bottom: 0;
+}
+
 .btn {
   border-radius: .5rem;
+}
+
+.btn-xlg {
+  font-size: 1.5em;
+  padding: 1rem 2rem;
 }
 
 .btn-primary {
@@ -79,8 +91,10 @@ body {
   border-color: #74a93c !important;
   color: white !important;
   text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  font-size: 1.5em;
-  padding: 1rem;
 } .btn-primary:hover, .btn-primary:active {
   background-image: none;
+}
+
+.badge-primary {
+  background-color: #74a93c;
 }

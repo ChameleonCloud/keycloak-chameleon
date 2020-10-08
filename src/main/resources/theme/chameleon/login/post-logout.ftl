@@ -24,7 +24,7 @@
       and explicitly sign out using the built-in logout functionality.
     </p>
     <#if client?? && client.baseUrl??>
-    <p>
+    <p class="text-center">
       <a class="btn btn-default btn-lg" href="${client.baseUrl}">Return to ${client.name}</a>
     </p>
     </#if>
