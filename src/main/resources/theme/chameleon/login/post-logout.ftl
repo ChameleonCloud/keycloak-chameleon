@@ -3,8 +3,10 @@
   <#if section = "header">
     You have been logged out.
   <#elseif section = "form">
-    <#if client?? && client.name??>
-    <p>You are now logged out of <strong>${client.name}</strong>.</p>
+    <#if client??>
+    <p>
+      You are now logged out of <strong>${client.name}</strong>.
+    </p>
     </#if>
     <p>
       If you are using a public computer or wish to securely log out, you should
@@ -21,6 +23,11 @@
       experiment sites. If you wish to log out everywhere, you must visit each
       and explicitly sign out using the built-in logout functionality.
     </p>
+    <#if client?? && client.baseUrl??>
+    <p>
+      <a class="btn btn-default btn-lg" href="${client.baseUrl}">Return to ${client.name}</a>
+    </p>
+    </#if>
     <#--
     <ul>
       <li>Jupyter environment: <a href="https://jupyter.chameleoncloud.org/auth/logout" title="Log out of Jupyter environment" rel="noopener noreferrer" target="_blank">logout</a></li>
