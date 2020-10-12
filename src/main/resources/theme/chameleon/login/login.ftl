@@ -29,7 +29,7 @@
                         </p>
                         <p>
                             <strong>Important!</strong> Make sure you
-                            <a class="alert-link" href="https://chameleoncloud.readthedocs.io/en/latest/getting-started/federation.html" target="_blank" rel="noopener noreferrer">migrate your account</a>
+                            <a class="alert-link" href="https://chameleoncloud.readthedocs.io/en/latest/user/federation/federation_migration.html" target="_blank" rel="noopener noreferrer">migrate your account</a>
                             before signing in via federated login for the first
                             time, if you already have a Chameleon account.
                         </p>
