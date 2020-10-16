@@ -70,5 +70,10 @@
         </#if>
       </div>
     <#elseif section = "info" >
+    <div>
+        <p>
+            Don't have an account? <a href="${url.registrationUrl}">Sign up now.</a>
+        </p>
+    </div>
     </#if>
 </@layout.registrationLayout>
