@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -52,6 +51,16 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
     public static final String TOKEN_FLAT_CLAIM_NAME_TOOLTIP = "tokenClaimName.flat.tooltip";
 
     static {
+        // Support multi-value claims (it's really the only sane option but
+        // it is configurable nonetheless)
+        ProviderConfigProperty multiValued = new ProviderConfigProperty();
+        multiValued.setName(ProtocolMapperUtils.MULTIVALUED);
+        multiValued.setLabel(ProtocolMapperUtils.MULTIVALUED_LABEL);
+        multiValued.setHelpText(ProtocolMapperUtils.MULTIVALUED_HELP_TEXT);
+        multiValued.setType(ProviderConfigProperty.BOOLEAN_TYPE);
+        multiValued.setDefaultValue("true");
+        CONFIG_PROPERTIES.add(multiValued);
+
         // Allow user to override claim name
         OIDCAttributeMapperHelper.addTokenClaimNameConfig(CONFIG_PROPERTIES);
         // Add additional configuration for flattened claim with just project IDs
@@ -96,21 +105,23 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
             final UserSessionModel userSession, final KeycloakSession keycloakSession,
             final ClientSessionContext clientSessionCtx) {
         final Map<String,String> config = mappingModel.getConfig();
-        final Map<String,Object> claims = token.getOtherClaims();
 
         final List<ChameleonProject> projects = userSession.getUser().getGroups()
             .stream()
             .filter(this::isActive)
             .map(this::toProjectRepresentation)
+            .sorted()
             .collect(Collectors.toList());
-        final String claimName = config.get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
-        claims.put(claimName, projects);
+        OIDCAttributeMapperHelper.mapClaim(token, mappingModel, projects);
 
         final List<String> projectIds = projects.stream()
             .map(project -> project.id)
             .collect(Collectors.toList());
-        final String flatClaimName = config.get(TOKEN_FLAT_CLAIM_NAME);
-        claims.put(flatClaimName, projectIds);
+        // This is pretty hacky... we are mapping multiple claims with this
+        // function, yet the mapClaim helper cannot be parameterized by claim
+        // name. Swap the claim name for the "real" one before mapping.
+        config.put(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME, config.get(TOKEN_FLAT_CLAIM_NAME));
+        OIDCAttributeMapperHelper.mapClaim(token, mappingModel, projectIds);
     }
 
     protected boolean isActive(final GroupModel group) {

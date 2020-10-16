@@ -39,6 +39,16 @@ public class FederatedIdentitiesMapper extends AbstractOIDCProtocolMapper
     public static final String PROVIDER_ID = "oidc-federated-identities-mapper";
 
     static {
+        // Support multi-value claims (it's really the only sane option but
+        // it is configurable nonetheless)
+        ProviderConfigProperty multiValued = new ProviderConfigProperty();
+        multiValued.setName(ProtocolMapperUtils.MULTIVALUED);
+        multiValued.setLabel(ProtocolMapperUtils.MULTIVALUED_LABEL);
+        multiValued.setHelpText(ProtocolMapperUtils.MULTIVALUED_HELP_TEXT);
+        multiValued.setType(ProviderConfigProperty.BOOLEAN_TYPE);
+        multiValued.setDefaultValue("true");
+        CONFIG_PROPERTIES.add(multiValued);
+
         // Allow user to override claim name
         OIDCAttributeMapperHelper.addTokenClaimNameConfig(CONFIG_PROPERTIES);
         // Allow user to include in id_token/access_token/user_info
