@@ -3,6 +3,7 @@ package org.chameleoncloud;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,19 +47,21 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
      */
     public static final String PROVIDER_ID = "oidc-chameleon-project-mapper";
 
-    static {
-        // Support multi-value claims (it's really the only sane option but
-        // it is configurable nonetheless)
-        ProviderConfigProperty multiValued = new ProviderConfigProperty();
-        multiValued.setName(ProtocolMapperUtils.MULTIVALUED);
-        multiValued.setLabel(ProtocolMapperUtils.MULTIVALUED_LABEL);
-        multiValued.setHelpText(ProtocolMapperUtils.MULTIVALUED_HELP_TEXT);
-        multiValued.setType(ProviderConfigProperty.BOOLEAN_TYPE);
-        multiValued.setDefaultValue("true");
-        CONFIG_PROPERTIES.add(multiValued);
+    public static final String TOKEN_FLAT_CLAIM_NAME = "claim.flat.name";
+    public static final String TOKEN_FLAT_CLAIM_NAME_LABEL = "tokenClaimName.flat.label";
+    public static final String TOKEN_FLAT_CLAIM_NAME_TOOLTIP = "tokenClaimName.flat.tooltip";
 
+    static {
         // Allow user to override claim name
         OIDCAttributeMapperHelper.addTokenClaimNameConfig(CONFIG_PROPERTIES);
+        // Add additional configuration for flattened claim with just project IDs
+        ProviderConfigProperty property = new ProviderConfigProperty();
+        property.setName(TOKEN_FLAT_CLAIM_NAME);
+        property.setLabel(TOKEN_FLAT_CLAIM_NAME_LABEL);
+        property.setType(ProviderConfigProperty.STRING_TYPE);
+        property.setHelpText(TOKEN_FLAT_CLAIM_NAME_TOOLTIP);
+        CONFIG_PROPERTIES.add(property);
+
         // Allow user to include in id_token/access_token/user_info
         OIDCAttributeMapperHelper.addIncludeInTokensConfig(CONFIG_PROPERTIES, FederatedIdentitiesMapper.class);
     }
@@ -92,19 +95,43 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
     protected void setClaim(final IDToken token, final ProtocolMapperModel mappingModel,
             final UserSessionModel userSession, final KeycloakSession keycloakSession,
             final ClientSessionContext clientSessionCtx) {
-        Function<GroupModel, ChameleonProject> toProjectRepresentation = this::toProjectRepresentation;
-        List<ChameleonProject> projects = userSession.getUser().getGroups().stream()
-            .map(toProjectRepresentation).collect(Collectors.toList());
+        final Map<String,String> config = mappingModel.getConfig();
+        final Map<String,Object> claims = token.getOtherClaims();
 
-        String protocolClaim = mappingModel.getConfig().get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
+        final List<ChameleonProject> projects = userSession.getUser().getGroups()
+            .stream()
+            .filter(this::isActive)
+            .map(this::toProjectRepresentation)
+            .collect(Collectors.toList());
+        final String claimName = config.get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
+        claims.put(claimName, projects);
 
-        token.getOtherClaims().put(protocolClaim, projects);
+        final List<String> projectIds = projects.stream()
+            .map(project -> project.id)
+            .collect(Collectors.toList());
+        final String flatClaimName = config.get(TOKEN_FLAT_CLAIM_NAME);
+        claims.put(flatClaimName, projectIds);
+    }
+
+    protected boolean isActive(final GroupModel group) {
+        final GroupModel parent = group.getParent();
+        if (parent != null) {
+            // Exclude child groups (*-admins, *-managers)
+            return false;
+        }
+
+        final String hasActiveAllocation = group.getAttributes()
+            .getOrDefault("has_active_allocation", Collections.emptyList())
+            .stream()
+            .findFirst().orElse("true");
+        return Boolean.parseBoolean(hasActiveAllocation);
     }
 
     protected ChameleonProject toProjectRepresentation(final GroupModel group) {
         final Optional<String> nickname = group.getAttributes()
             .getOrDefault("nickname", Collections.emptyList())
-            .stream().findFirst();
+            .stream()
+            .findFirst();
         return new ChameleonProject(group.getName(), nickname);
     }
 
