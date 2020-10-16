@@ -113,6 +113,11 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
             .map(this::toProjectRepresentation)
             .sorted()
             .collect(Collectors.toList());
+
+        if (projects.isEmpty()) {
+            return;
+        }
+
         claims.put(config.get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME), projects);
 
         final List<String> projectIds = projects.stream()

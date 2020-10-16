@@ -35,19 +35,17 @@
             </div>
 
             <div class="form-group">
-                <div class="${properties.kcLabelWrapperClass!}">
+                <div class="${properties.kcLabelWrapperClass!} ${messagesPerField.printIfExists('country',properties.kcFormGroupErrorClass!)}">
                     <label for="user.attributes.country" class="${properties.kcLabelClass!}">${msg("country")}</label>
                 </div>
-
                 <div class="${properties.kcInputWrapperClass!}">
                     <@m.countrySelect name="user.attributes.country" value=(user.attributes.country)!"none"/>
                 </div>
             </div>
             <div class="form-group">
-                <div class="${properties.kcLabelWrapperClass!}">
+                <div class="${properties.kcLabelWrapperClass! ${messagesPerField.printIfExists('citizenship',properties.kcFormGroupErrorClass!)}}">
                     <label for="user.attributes.citizenship" class="${properties.kcLabelClass!}">${msg("citizenship")}</label>
                 </div>
-
                 <div class="${properties.kcInputWrapperClass!}">
                     <@m.countrySelect name="user.attributes.citizenship" value=(user.attributes.citizenship)!"none"/>
                 </div>
@@ -58,7 +56,6 @@
                     <div class="${properties.kcFormOptionsWrapperClass!}">
                     </div>
                 </div>
-
                 <div id="kc-form-buttons" class="${properties.kcFormButtonsClass!}">
                     <input class="${properties.kcButtonClass!} ${properties.kcButtonPrimaryClass!} ${properties.kcButtonLargeClass!}" type="submit" value="${msg("doSubmit")}" />
                 </div>
