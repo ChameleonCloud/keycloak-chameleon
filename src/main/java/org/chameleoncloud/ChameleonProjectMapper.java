@@ -105,6 +105,7 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
             final UserSessionModel userSession, final KeycloakSession keycloakSession,
             final ClientSessionContext clientSessionCtx) {
         final Map<String,String> config = mappingModel.getConfig();
+        final Map<String,Object> claims = token.getOtherClaims();
 
         final List<ChameleonProject> projects = userSession.getUser().getGroups()
             .stream()
@@ -112,16 +113,12 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
             .map(this::toProjectRepresentation)
             .sorted()
             .collect(Collectors.toList());
-        OIDCAttributeMapperHelper.mapClaim(token, mappingModel, projects);
+        claims.put(config.get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME), projects);
 
         final List<String> projectIds = projects.stream()
             .map(project -> project.id)
             .collect(Collectors.toList());
-        // This is pretty hacky... we are mapping multiple claims with this
-        // function, yet the mapClaim helper cannot be parameterized by claim
-        // name. Swap the claim name for the "real" one before mapping.
-        config.put(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME, config.get(TOKEN_FLAT_CLAIM_NAME));
-        OIDCAttributeMapperHelper.mapClaim(token, mappingModel, projectIds);
+        claims.put(config.get(TOKEN_FLAT_CLAIM_NAME), projectIds);
     }
 
     protected boolean isActive(final GroupModel group) {
