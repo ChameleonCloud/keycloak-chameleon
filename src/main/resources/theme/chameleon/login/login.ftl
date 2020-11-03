@@ -27,7 +27,7 @@
                     </a>
                 </div>
                 <#if client.baseUrl??>
-                <div class="kc-form-login-options">
+                <div class="kc-form-login-fallback">
                     <a href="${client.baseUrl}auth/force-password-login">
                         <span>Go to the old sign-in page</span>
                     </a>
