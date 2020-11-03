@@ -123,6 +123,7 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
         final List<String> projectIds = projects.stream()
             .map(project -> project.id)
             .collect(Collectors.toList());
+
         claims.put(config.get(TOKEN_FLAT_CLAIM_NAME), projectIds);
     }
 
@@ -136,7 +137,7 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
         final String hasActiveAllocation = group.getAttributes()
             .getOrDefault("has_active_allocation", Collections.emptyList())
             .stream()
-            .findFirst().orElse("true");
+            .findFirst().orElse("false");
         return Boolean.parseBoolean(hasActiveAllocation);
     }
 
