@@ -97,6 +97,7 @@ public class ChameleonProjectMapperTest {
     final GroupModel group = new HardcodedGroupModel(name);
     group.setName(name);
     group.setSingleAttribute("nickname", nickname);
+    group.setSingleAttribute("has_active_allocation", "true");
     return group;
   }
 
