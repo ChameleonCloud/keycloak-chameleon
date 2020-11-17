@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <div class="${properties.kcLabelWrapperClass! ${messagesPerField.printIfExists('citizenship',properties.kcFormGroupErrorClass!)}}">
+                <div class="${properties.kcLabelWrapperClass!} ${messagesPerField.printIfExists('citizenship',properties.kcFormGroupErrorClass!)}">
                     <label for="user.attributes.citizenship" class="${properties.kcLabelClass!}">${msg("citizenship")}</label>
                 </div>
                 <div class="${properties.kcInputWrapperClass!}">
