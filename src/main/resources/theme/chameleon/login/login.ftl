@@ -26,13 +26,6 @@
                         <span>TAS</span>
                     </a>
                 </div>
-                <#if client.baseUrl??>
-                <div class="kc-form-login-fallback">
-                    <a href="${client.baseUrl}auth/force-password-login">
-                        <span>Go to the old sign-in page</span>
-                    </a>
-                </div>
-                </#if>
             <#elseif tacc != "missing">
                 <#-- "Link identity" workflow -->
                 <div class="kc-form-login-main-option">
