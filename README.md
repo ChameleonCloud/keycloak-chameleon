@@ -28,6 +28,18 @@ This package is currently published to GitHub Packages.
 make publish
 ```
 
+### Testing a version
+
+Keycloak modules support hot deployment; by placing a module in the Keycloak modules directory (e.g., /opt/jboss/keycloak/modules when using the [JBoss Keycloak Docker image](https://hub.docker.com/r/jboss/keycloak/)), Keycloak will automatically reload it without a restart.
+
+> **Note**: if a theme template is updated, hot-reloading doesn't seem to pick up template changes. In this case, a restart of the Keycloak service is necessary.
+
+```shell
+version="<version>"
+github_package="<JAR asset URL from https://github.com/ChameleonCloud/keycloak-chameleon/packages/304507>"
+wget -O "path/to/keycloak/modules/keycloak-chameleon-$version.jar" "$github_package"
+```
+
 ## Acknowledgements
 
 - [mschwartau/keycloak-custom-protocol-mapper-example](https://github.com/mschwartau/keycloak-custom-protocol-mapper-example) provided much of the reference implementation.
