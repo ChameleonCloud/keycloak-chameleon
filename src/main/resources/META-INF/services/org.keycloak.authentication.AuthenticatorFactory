@@ -1,2 +1,2 @@
 # List here all authenticators which should be loaded by Keycloak.
-org.chameleoncloud.IdentitySetAuthenticatorFactory
+org.chameleoncloud.CreateIfIdentitysetFactory
