@@ -1,8 +1,5 @@
 package org.chameleoncloud;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.jboss.logging.Logger;
 
 import org.keycloak.Config;
