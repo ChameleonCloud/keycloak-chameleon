@@ -1,7 +1,13 @@
 package org.chameleoncloud;
 
+import org.chameleoncloud.representations.GlobusIDToken;
+import org.chameleoncloud.representations.GlobusIdentity;
+
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -17,17 +23,19 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
 
     private static Logger logger = Logger.getLogger(CreateIfIdentityset.class);
 
-    Map<String, Object> context_map;
-
     // I figured out that the userId field has to match the value in the subject
     // claim and the username field has to match the preferred_username claim of the
     // token issued from the IdP.
 
-    private void findIdentitySet(BrokeredIdentityContext context) {
-        context_map = context.getContextData();
+    public void convertMapToJson(Map<String, Object> input) {
 
-        for (String key : context_map.keySet()) {
-            logger.debug(key);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            String json = objectMapper.writeValueAsString(input);
+            logger.warn(json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -35,10 +43,17 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
     protected ExistingUserInfo checkExistingUser(AuthenticationFlowContext context, String username,
             SerializedBrokeredIdentityContext serializedCtx, BrokeredIdentityContext brokerContext) {
 
-        logger.debug("Entered ExistingUserInfo");
+        logger.warn("Entered ExistingUserInfo");
+
+        // Unpack data from broker response
+        GlobusIDToken validatedIDToken = (GlobusIDToken) brokerContext.getContextData().get("VALIDATED_ID_TOKEN");
+
+        String broker_user_person_name = validatedIDToken.getName(); // Person's name
+        String broker_username = validatedIDToken.getPreferredUsername(); // Preferred username is "primary"
+        String broker_user_email = validatedIDToken.getEmail(); // May or may not be the same as username
 
         // Print identity_set to debug log
-        findIdentitySet(brokerContext);
+        convertMapToJson(brokerContext.getContextData());
 
         String test_user_email = "shermanm@uchicago.edu";
 
