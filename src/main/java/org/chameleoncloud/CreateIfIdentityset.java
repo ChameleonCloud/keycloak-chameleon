@@ -1,25 +1,37 @@
 package org.chameleoncloud;
 
-import org.chameleoncloud.representations.GlobusIDToken;
 import org.chameleoncloud.representations.GlobusIdentity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+// import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.keycloak.models.UserProvider;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.broker.IdpCreateUserIfUniqueAuthenticator;
 import org.keycloak.authentication.authenticators.broker.util.ExistingUserInfo;
 import org.keycloak.authentication.authenticators.broker.util.SerializedBrokeredIdentityContext;
+import org.keycloak.authorization.policy.evaluation.Realm;
+// import org.keycloak.broker.oidc.mappers.AbstractClaimMapper;
+// import org.keycloak.broker.oidc.mappers.UserAttributeMapper;
+import org.keycloak.broker.oidc.OIDCIdentityProvider;
+
 import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.RealmModel;
 
-import org.keycloak.broker.oidc.mappers.UserAttributeMapper;
+import org.keycloak.representations.JsonWebToken;
 
 public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
+
+    String IDENTITY_SET_CLAIM = "identity_set";
 
     private static Logger logger = Logger.getLogger(CreateIfIdentityset.class);
 
@@ -27,7 +39,7 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
     // claim and the username field has to match the preferred_username claim of the
     // token issued from the IdP.
 
-    public void convertMapToJson(Map<String, Object> input) {
+    public void convertToJson(Object input) {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -39,6 +51,23 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
         }
     }
 
+    private ExistingUserInfo test_existing_user(GlobusIdentity identity, UserProvider users, RealmModel realm) {
+
+        // Check for matching email in identity_set
+        UserModel existingUserByEmail = users.getUserByEmail(identity.getEmail(), realm);
+        if (existingUserByEmail != null) {
+            return new ExistingUserInfo(existingUserByEmail.getId(), UserModel.EMAIL, existingUserByEmail.getEmail());
+        }
+
+        // Check for matching username in identity_set
+        UserModel getUserByUsername = users.getUserByUsername(identity.getUsername(), realm);
+        if (getUserByUsername != null) {
+            return new ExistingUserInfo(getUserByUsername.getId(), UserModel.USERNAME, getUserByUsername.getEmail());
+        }
+
+        return null;
+    }
+
     @Override
     protected ExistingUserInfo checkExistingUser(AuthenticationFlowContext context, String username,
             SerializedBrokeredIdentityContext serializedCtx, BrokeredIdentityContext brokerContext) {
@@ -46,32 +75,28 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
         logger.warn("Entered ExistingUserInfo");
 
         // Unpack data from broker response
-        GlobusIDToken validatedIDToken = (GlobusIDToken) brokerContext.getContextData().get("VALIDATED_ID_TOKEN");
+        JsonWebToken token = (JsonWebToken) brokerContext.getContextData().get(OIDCIdentityProvider.VALIDATED_ID_TOKEN);
+        Map<String, Object> otherClaims = token.getOtherClaims();
 
-        String broker_user_person_name = validatedIDToken.getName(); // Person's name
-        String broker_username = validatedIDToken.getPreferredUsername(); // Preferred username is "primary"
-        String broker_user_email = validatedIDToken.getEmail(); // May or may not be the same as username
+        // Jackson deserializes this response earlier, this forces a conversion of the
+        // identity set to our type. Alternately, we could convert the token to the
+        // GlobusIDToken class
+        ObjectMapper mapper = new ObjectMapper();
+        List<GlobusIdentity> identity_set = mapper.convertValue(otherClaims.get(this.IDENTITY_SET_CLAIM),
+                new TypeReference<List<GlobusIdentity>>() {
+                });
 
-        // Print identity_set to debug log
-        convertMapToJson(brokerContext.getContextData());
-
-        String test_user_email = "shermanm@uchicago.edu";
-
-        // Default check, attempt to get user by email, return user ef exists.
-        UserModel existingUserbyEmail = context.getSession().users().getUserByEmail(test_user_email,
-                context.getRealm());
-        if (existingUserbyEmail != null) {
-            return new ExistingUserInfo(existingUserbyEmail.getId(), UserModel.EMAIL, existingUserbyEmail.getEmail());
+        // Check each identity in the set against the list of existing users in keycloak
+        // If a match is found, return the match, otherwise, return null
+        for (GlobusIdentity identity : identity_set) {
+            ExistingUserInfo existingUser = test_existing_user(identity, context.getSession().users(),
+                    context.getRealm());
+            if (existingUser != null) {
+                return existingUser;
+            }
         }
 
-        // Default check, attempt to get user by username, return user ef exists.
-        // UserModel existingUser =
-        // context.getSession().users().getUserByUsername(username, context.getRealm());
-        // if (existingUser != null) {
-        // return new ExistingUserInfo(existingUser.getId(), UserModel.USERNAME,
-        // existingUser.getUsername());
-        // }
-
+        // If null is return, depending on the flow, keycloak will create a new user
         return null;
     }
 }

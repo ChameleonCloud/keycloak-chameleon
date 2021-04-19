@@ -4,28 +4,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GlobusIdentity {
 
-    @JsonProperty("")
+    @JsonProperty("name")
     protected String name;
 
-    @JsonProperty("")
+    @JsonProperty("username")
     protected String username;
 
-    @JsonProperty("")
+    @JsonProperty("identity_provider_display_name")
     protected String identity_provider_display_name;
 
-    @JsonProperty("")
+    @JsonProperty("identity_provider")
     protected String identity_provider;
 
-    @JsonProperty("")
+    @JsonProperty("last_authentication")
     protected Long last_authentication;
 
-    @JsonProperty("")
+    @JsonProperty("sub")
     protected String sub;
 
-    @JsonProperty("")
+    @JsonProperty("email")
     protected String email;
 
-    @JsonProperty("")
+    @JsonProperty("organization")
     protected String organization;
 
     public String getName() {
@@ -48,7 +48,7 @@ public class GlobusIdentity {
         return this.last_authentication;
     }
 
-    public String getSubject() {
+    public String getSub() {
         return this.sub;
     }
 

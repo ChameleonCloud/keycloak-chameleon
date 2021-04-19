@@ -1,5 +1,7 @@
 package org.chameleoncloud.representations;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.keycloak.representations.IDToken;
 
@@ -28,21 +30,38 @@ public class GlobusIDToken extends IDToken {
      * of the identity provider for this identity.
      */
 
-    private static final long serialVersionUID = 1L;
-
-    @JsonProperty("")
+    @JsonProperty("last_authentication")
     protected Long last_authentication;
+
+    public Long getLastAuthentication() {
+        return this.last_authentication;
+    }
 
     @JsonProperty("identity_set")
     protected GlobusIdentity[] identity_set;
 
-    @JsonProperty("")
+    public GlobusIdentity[] getIdentitySet() {
+        return this.identity_set;
+    }
+
+    @JsonProperty("organization")
     protected String organization;
 
-    @JsonProperty("")
+    public String getOrganization() {
+        return this.organization;
+    }
+
+    @JsonProperty("identity_provider_display_name")
     protected String identity_provider_display_name;
 
-    @JsonProperty("")
+    public String getIdentityProviderDisplayName() {
+        return this.identity_provider_display_name;
+    }
+
+    @JsonProperty("identity_provider")
     protected String identity_provider;
 
+    public String getIdentityProvider() {
+        return this.identity_provider;
+    }
 }
