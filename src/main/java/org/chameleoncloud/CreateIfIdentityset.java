@@ -2,6 +2,8 @@ package org.chameleoncloud;
 
 import org.chameleoncloud.representations.GlobusIdentity;
 
+import org.keycloak.models.FederatedIdentityModel;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 // import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.keycloak.models.UserProvider;
 
@@ -52,7 +55,6 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
     }
 
     private ExistingUserInfo test_existing_user(GlobusIdentity identity, UserProvider users, RealmModel realm) {
-
         // Check for matching email in identity_set
         UserModel existingUserByEmail = users.getUserByEmail(identity.getEmail(), realm);
         if (existingUserByEmail != null) {
@@ -60,12 +62,23 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
         }
 
         // Check for matching username in identity_set
-        UserModel getUserByUsername = users.getUserByUsername(identity.getUsername(), realm);
-        if (getUserByUsername != null) {
-            return new ExistingUserInfo(getUserByUsername.getId(), UserModel.USERNAME, getUserByUsername.getEmail());
+        UserModel existingUserByUsername = users.getUserByUsername(identity.getUsername(), realm);
+        if (existingUserByUsername != null) {
+            return new ExistingUserInfo(existingUserByUsername.getId(), UserModel.USERNAME,
+                    existingUserByUsername.getEmail());
         }
-
         return null;
+    }
+
+    private Boolean updateLinkedIdentity(GlobusIdentity globusID, UserModel existingUser, UserProvider users,
+            RealmModel realm) {
+        logger.warn("updating linked identity");
+        // TODO: Check for multiple, non-matching globus IDs
+        Set<FederatedIdentityModel> identities = users.getFederatedIdentities(existingUser, realm);
+        convertToJson(identities);
+        FederatedIdentityModel newID = new FederatedIdentityModel("globus", globusID.getSub(), globusID.getUsername());
+        convertToJson(newID);
+        return identities.add(newID);
     }
 
     @Override
@@ -88,11 +101,18 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
 
         // Check each identity in the set against the list of existing users in keycloak
         // If a match is found, return the match, otherwise, return null
+        UserProvider cachedUsers = context.getSession().users();
+        RealmModel realm = context.getRealm();
         for (GlobusIdentity identity : identity_set) {
-            ExistingUserInfo existingUser = test_existing_user(identity, context.getSession().users(),
-                    context.getRealm());
+            ExistingUserInfo existingUser = test_existing_user(identity, cachedUsers, realm);
             if (existingUser != null) {
-                return existingUser;
+                UserModel conflictingUser = cachedUsers.getUserById(existingUser.getExistingUserId(), realm);
+                Boolean result = updateLinkedIdentity(identity, conflictingUser, cachedUsers, realm);
+                // if (result == true) {
+                // context.resetFlow();
+                // } else {
+                // return existingUser;
+                // }
             }
         }
 
