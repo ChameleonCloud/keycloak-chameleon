@@ -54,11 +54,12 @@ public class IdpLinkIdentitySetAuthenticator extends AbstractIdpAuthenticator {
 
             UserModel federatedUser = session.users().getUserByFederatedIdentity(oldIdentity, realm);
             if (federatedUser != null) {
-                logger.warnv("Username {0} has existing link with provider {1}", federatedUser.getUsername(),
-                        providerId);
+                logger.warnv("Username {0} has existing link with provider {1}, removing linked id {2}",
+                        federatedUser.getUsername(), providerId, oldIdentity.getUserId());
                 // TODO: Handle duplicate globus case
                 // Link existing user to this token
-                session.users().updateFederatedIdentity(realm, federatedUser, newIdentity);
+                // session.users().updateFederatedIdentity(realm, federatedUser, newIdentity);
+                session.users().removeFederatedIdentity(realm, federatedUser, providerId);
                 context.setUser(federatedUser);
                 context.success();
                 return;
