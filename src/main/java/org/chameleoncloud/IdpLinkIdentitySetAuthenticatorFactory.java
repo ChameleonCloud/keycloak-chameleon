@@ -21,12 +21,12 @@ public class IdpLinkIdentitySetAuthenticatorFactory extends IdpCreateUserIfUniqu
 
     @Override
     public String getDisplayType() {
-        return "Link identity to user if in identity set.";
+        return "IdP Link Identity if in IdentitySet";
     }
 
     @Override
     public String getHelpText() {
-        return "Detect if there is existing Keycloak account matching the IdP identity_set.";
+        return "If existing user has linked identity in the identity set, override that link.";
     }
 
 }
