@@ -35,28 +35,12 @@ import org.keycloak.sessions.AuthenticationSessionModel;
 
 import org.keycloak.representations.JsonWebToken;
 
-public class CreateIfIdentityset extends AbstractIdpAuthenticator {
+public class CreateIfIdentityset extends IdpAutoLinkAuthenticator {
 
     String IDENTITY_SET_CLAIM = "identity_set";
     String GLOBUS_ALIAS = "globus";
 
     private static Logger logger = Logger.getLogger(CreateIfIdentityset.class);
-
-    @Override
-    protected void actionImpl(AuthenticationFlowContext context, SerializedBrokeredIdentityContext serializedCtx,
-            BrokeredIdentityContext brokerContext) {
-        authenticateImpl(context, serializedCtx, brokerContext);
-    }
-
-    @Override
-    public boolean requiresUser() {
-        return false;
-    }
-
-    @Override
-    public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
-        return false;
-    }
 
     @Override
     protected void authenticateImpl(AuthenticationFlowContext context, SerializedBrokeredIdentityContext serializedCtx,
@@ -71,7 +55,7 @@ public class CreateIfIdentityset extends AbstractIdpAuthenticator {
 
         if (existingUser != null) {
             // Build identity from from matching user
-            logger.debugf("found matching user with username '%s' and email '%s'", existingUser.getUsername(),
+            logger.warnf("found matching user with username '%s' and email '%s'", existingUser.getUsername(),
                     existingUser.getEmail());
 
             // Remove existing link. TODO: This is dangerous.
@@ -84,6 +68,7 @@ public class CreateIfIdentityset extends AbstractIdpAuthenticator {
             context.setUser(existingUser);
             context.success();
         } else {
+            // TODO check for match based on username / email
             // no match found, return to next in flow
             context.attempted();
         }
