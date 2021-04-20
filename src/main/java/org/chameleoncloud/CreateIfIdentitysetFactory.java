@@ -1,10 +1,10 @@
 package org.chameleoncloud;
 
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.authentication.authenticators.broker.IdpAutoLinkAuthenticatorFactory;
+import org.keycloak.authentication.authenticators.broker.IdpCreateUserIfUniqueAuthenticatorFactory;
 import org.keycloak.models.KeycloakSession;
 
-public class CreateIfIdentitysetFactory extends IdpAutoLinkAuthenticatorFactory {
+public class CreateIfIdentitysetFactory extends IdpCreateUserIfUniqueAuthenticatorFactory {
 
     public static final String PROVIDER_ID = "create-user-if-identityset";
     static CreateIfIdentityset SINGLETON = new CreateIfIdentityset();

@@ -35,7 +35,7 @@ import org.keycloak.sessions.AuthenticationSessionModel;
 
 import org.keycloak.representations.JsonWebToken;
 
-public class CreateIfIdentityset extends IdpAutoLinkAuthenticator {
+public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
 
     String IDENTITY_SET_CLAIM = "identity_set";
     String GLOBUS_ALIAS = "globus";
@@ -46,6 +46,8 @@ public class CreateIfIdentityset extends IdpAutoLinkAuthenticator {
     protected void authenticateImpl(AuthenticationFlowContext context, SerializedBrokeredIdentityContext serializedCtx,
             BrokeredIdentityContext brokerContext) {
 
+        logger.debug("Entered authenticateImpl");
+
         KeycloakSession session = context.getSession();
         RealmModel realm = context.getRealm();
         AuthenticationSessionModel authSession = context.getAuthenticationSession();
@@ -54,19 +56,18 @@ public class CreateIfIdentityset extends IdpAutoLinkAuthenticator {
         UserModel existingUser = findUserByIdentitySet(session, realm, brokerContext);
 
         if (existingUser != null) {
-            // Build identity from from matching user
             logger.warnf("found matching user with username '%s' and email '%s'", existingUser.getUsername(),
                     existingUser.getEmail());
+
+            // Set duplicated user, so next authenticators can deal with it
+            ExistingUserInfo duplication = new ExistingUserInfo(existingUser.getId(), providerId,
+                    brokerContext.getUsername());
+            context.getAuthenticationSession().setAuthNote(EXISTING_USER_INFO, duplication.serialize());
 
             // Remove existing link. TODO: This is dangerous.
             logger.warnf("removing linked identity '%s' with user '%s'", providerId, existingUser.getId());
             session.users().removeFederatedIdentity(realm, existingUser, providerId);
-
-            logger.debugf(
-                    "User '%s' is set to authentication context when link with identity provider '%s' . Identity provider username is '%s' ",
-                    existingUser.getUsername(), brokerContext.getIdpConfig().getAlias(), brokerContext.getUsername());
-            context.setUser(existingUser);
-            context.success();
+            context.attempted();
         } else {
             // TODO check for match based on username / email
             // no match found, return to next in flow
@@ -88,7 +89,7 @@ public class CreateIfIdentityset extends IdpAutoLinkAuthenticator {
     protected UserModel findUserByIdentitySet(KeycloakSession session, RealmModel realm,
             BrokeredIdentityContext brokerContext) {
 
-        logger.debug("Entered findConflictingUser");
+        logger.debug("Entered findUserByIdentitySet");
 
         // Unpack data from broker response
         String providerId = brokerContext.getIdpConfig().getAlias();
