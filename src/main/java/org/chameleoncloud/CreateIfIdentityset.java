@@ -1,15 +1,10 @@
 package org.chameleoncloud;
 
-// import com.fasterxml.jackson.databind.JsonNode;
-// import org.keycloak.broker.oidc.mappers.AbstractClaimMapper;
-// import org.keycloak.broker.oidc.mappers.UserAttributeMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.chameleoncloud.representations.GlobusIdentity;
 
@@ -20,8 +15,6 @@ import org.keycloak.authentication.authenticators.broker.IdpCreateUserIfUniqueAu
 import org.keycloak.authentication.authenticators.broker.util.ExistingUserInfo;
 import org.keycloak.authentication.authenticators.broker.util.SerializedBrokeredIdentityContext;
 
-import org.keycloak.authorization.policy.evaluation.Realm;
-
 import org.keycloak.broker.oidc.OIDCIdentityProvider;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
 
@@ -31,13 +24,8 @@ import org.keycloak.models.FederatedIdentityModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserProvider;
-import org.keycloak.models.UserSessionModel;
-import org.keycloak.models.IdentityProviderModel;
+
 import org.keycloak.models.KeycloakSession;
-
-import org.keycloak.sessions.AuthenticationSessionModel;
-
-import org.keycloak.services.managers.AuthenticationSessionManager;
 
 import org.keycloak.representations.JsonWebToken;
 
@@ -49,11 +37,40 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
     private static Logger logger = Logger.getLogger(CreateIfIdentityset.class);
 
     @Override
-    protected ExistingUserInfo checkExistingUser(AuthenticationFlowContext context, String username,
-            SerializedBrokeredIdentityContext serializedCtx, BrokeredIdentityContext brokerContext) {
-        // find matching user, and overwrite stored token with the token from the
-        // request
+    protected void authenticateImpl(AuthenticationFlowContext context, SerializedBrokeredIdentityContext serializedCtx,
+            BrokeredIdentityContext brokerContext) {
 
+        KeycloakSession session = context.getSession();
+        RealmModel realm = context.getRealm();
+
+        UserModel federatedUser = getExistingUser(context, serializedCtx, brokerContext);
+        if (federatedUser != null) {
+            // Update brokered user
+
+            // Update stored token
+            // FederatedIdentityModel storedIdentity =
+            // session.users().getFederatedIdentity(federatedUser,
+            // brokerContext.getIdpConfig().getAlias(), realm);
+
+            // updateToken(context.getSession(), brokerContext, federatedUser,
+            // storedIdentity, context.getRealm());
+            // brokerContext.getIdp().updateBrokeredUser(context.getSession(), realm,
+            // federatedUser, brokerContext);
+
+            context.setUser(federatedUser);
+            context.success();
+            return;
+
+        } else {
+            context.attempted();
+            return;
+        }
+
+    }
+
+    protected UserModel getExistingUser(AuthenticationFlowContext context,
+            SerializedBrokeredIdentityContext serializedCtx, BrokeredIdentityContext brokerContext) {
+        // find matching user, overwrite stored token with the token from the request
         logger.debug("Entered ExistingUserInfo");
         // Get properties from contexts
         String providerId = brokerContext.getIdpConfig().getAlias();
@@ -68,23 +85,14 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
             // Build identity from token
             FederatedIdentityModel tokenIdentity = new FederatedIdentityModel(providerId, identity.getSub(),
                     identity.getUsername(), brokerContext.getToken());
+            logger.debugf("searching for '%s' user with username '%s'", providerId, identity.getUsername());
             // Find conflicting user
             UserModel conflictingUser = cachedUsers.getUserByFederatedIdentity(tokenIdentity, realm);
             if (conflictingUser != null) {
                 // Build identity from from matching user
-                FederatedIdentityModel storedIdentity = cachedUsers.getFederatedIdentity(conflictingUser, providerId,
-                        realm);
-
-                // Update stored token
-                updateToken(context.getSession(), brokerContext, conflictingUser, storedIdentity, realm);
-
-                // Update brokered user
-                /*
-                 * brokerContext.getIdp().updateBrokeredUser(context.getSession(), realm,
-                 * conflictingUser, brokerContext); set_authenticated_user;
-                 */
-                context.success();
-                return null;
+                logger.debugf("found matching user with username '%s' and email '%s'", conflictingUser.getUsername(),
+                        conflictingUser.getEmail());
+                return conflictingUser;
             } else {
                 logger.debugf("Federated user not found for provider '%s' and broker username '%s'", providerId,
                         brokerContext.getUsername());
@@ -92,7 +100,6 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
         }
 
         // If null is return, depending on the flow, keycloak will create a new user
-        context.attempted();
         return null;
     }
 
@@ -119,48 +126,5 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
                 new TypeReference<List<GlobusIdentity>>() {
                 });
         return identity_set;
-    }
-
-    // Look up existing user by list of methods
-    private UserModel find_existing_user(GlobusIdentity identity, UserProvider users, RealmModel realm) {
-
-        String globusUsername = identity.getUsername();
-        String globusSub = identity.getSub();
-        String globusEmail = identity.getEmail();
-
-        // Create federated identity from the token identity
-        FederatedIdentityModel globusID = new FederatedIdentityModel(GLOBUS_ALIAS, globusSub, globusUsername);
-
-        // Check for existing user matching the federated identity
-        UserModel existingUserByFedId = users.getUserByFederatedIdentity(globusID, realm);
-        if (existingUserByFedId != null) {
-            return existingUserByFedId;
-        }
-
-        // Check for matching email in identity_set
-        UserModel existingUserByEmail = users.getUserByEmail(globusEmail, realm);
-        if (existingUserByEmail != null) {
-            return existingUserByEmail;
-        }
-
-        // Check for matching username in identity_set
-        UserModel existingUserByUsername = users.getUserByUsername(globusUsername, realm);
-        if (existingUserByUsername != null) {
-            return existingUserByUsername;
-        }
-
-        return null;
-    }
-
-    private void objectToJsonLog(Object input) {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        try {
-            String json = objectMapper.writeValueAsString(input);
-            logger.warn(json);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
     }
 }
