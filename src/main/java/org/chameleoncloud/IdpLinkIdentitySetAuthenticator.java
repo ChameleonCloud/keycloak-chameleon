@@ -35,12 +35,12 @@ import org.keycloak.sessions.AuthenticationSessionModel;
 
 import org.keycloak.representations.JsonWebToken;
 
-public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
+public class IdpLinkIdentitySetAuthenticator extends IdpCreateUserIfUniqueAuthenticator {
 
     String IDENTITY_SET_CLAIM = "identity_set";
     String GLOBUS_ALIAS = "globus";
 
-    private static Logger logger = Logger.getLogger(CreateIfIdentityset.class);
+    private static Logger logger = Logger.getLogger(IdpLinkIdentitySetAuthenticator.class);
 
     @Override
     protected void authenticateImpl(AuthenticationFlowContext context, SerializedBrokeredIdentityContext serializedCtx,
@@ -67,10 +67,11 @@ public class CreateIfIdentityset extends IdpCreateUserIfUniqueAuthenticator {
             // Remove existing link. TODO: This is dangerous.
             logger.warnf("removing linked identity '%s' with user '%s'", providerId, existingUser.getId());
             session.users().removeFederatedIdentity(realm, existingUser, providerId);
-            context.attempted();
+            context.success();
         } else {
             // TODO check for match based on username / email
             // no match found, return to next in flow
+            logger.warn("no matching user was found for globus identity");
             context.attempted();
         }
     }
