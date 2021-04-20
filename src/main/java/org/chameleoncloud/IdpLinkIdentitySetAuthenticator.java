@@ -35,9 +35,9 @@ import org.keycloak.sessions.AuthenticationSessionModel;
 
 import org.keycloak.representations.JsonWebToken;
 
-public class IdpLinkIdentitySetAuthenticator extends IdpCreateUserIfUniqueAuthenticator {
+public class IdpLinkIdentitySetAuthenticator extends AbstractIdpAuthenticator {
 
-    // String IDENTITY_SET_CLAIM = "identity_set";
+    String IDENTITY_SET_CLAIM = "identity_set";
     // String GLOBUS_ALIAS = "globus";
 
     private static Logger logger = Logger.getLogger(IdpLinkIdentitySetAuthenticator.class);
@@ -51,103 +51,65 @@ public class IdpLinkIdentitySetAuthenticator extends IdpCreateUserIfUniqueAuthen
         AuthenticationSessionModel authSession = context.getAuthenticationSession();
         String providerId = brokerContext.getIdpConfig().getAlias();
 
-        // check preferred identity
-        logger.debugf("Checking for existing users with '%s' sub matching '%s'", providerId, brokerContext.getId());
-        FederatedIdentityModel tokenModel = new FederatedIdentityModel(providerId, brokerContext.getId(),
+        List<GlobusIdentity> identitySet = getIdentitiesFromToken(brokerContext);
+
+        FederatedIdentityModel newIdentity = new FederatedIdentityModel(providerId, brokerContext.getId(),
                 brokerContext.getUsername(), brokerContext.getToken());
-        UserModel federatedUser = session.users().getUserByFederatedIdentity(tokenModel, realm);
 
-        logger.debugf(
-                "Username '%s' has existing link with provider '%s', with sub='%s', username='%s', and email='%s'",
-                federatedUser.getUsername(), providerId, brokerContext.getBrokerUserId(), brokerContext.getUsername(),
-                brokerContext.getEmail());
+        for (GlobusIdentity identity : identitySet) {
+            // create model from identity parameters
+            FederatedIdentityModel oldIdentity = new FederatedIdentityModel(providerId, identity.getSub(),
+                    identity.getUsername(), brokerContext.getToken());
+            logger.debugf("Checking for existing users with '%s' sub matching '%s'", oldIdentity.getIdentityProvider(),
+                    oldIdentity.getUserId());
 
-        // context.setUser(existingUser);
-        context.success();
+            UserModel federatedUser = session.users().getUserByFederatedIdentity(oldIdentity, realm);
+            if (federatedUser != null) {
+                logger.debugf("Username '%s' has existing link with provider '%s'", federatedUser.getUsername(),
+                        providerId);
+                // TODO: Handle duplicate globus case
+                // Link existing user to this token
+                session.users().updateFederatedIdentity(realm, federatedUser, newIdentity);
+                context.setUser(federatedUser);
+                context.success();
+                return;
+            } else {
+                logger.debugf("No match found for '%s' username '%s'", oldIdentity.getIdentityProvider(),
+                        oldIdentity.getUserName());
+            }
+        }
 
-        // UserModel existingUser = findUserByIdentitySet(session, realm,
-        // brokerContext);
+        logger.debugf("No match in identity set for found for '%s' username '%s'", providerId,
+                brokerContext.getUsername());
+        context.attempted();
 
-        // if (existingUser != null) {
-        // logger.warnf("found matching user with username '%s' and email '%s'",
-        // existingUser.getUsername(),
-        // existingUser.getEmail());
+        // TODO match on username / email of existing accounts from identityset
 
-        // // Set duplicated user, so next authenticators can deal with it
-        // ExistingUserInfo duplication = new ExistingUserInfo(existingUser.getId(),
-        // providerId,
-        // brokerContext.getUsername());
-        // context.getAuthenticationSession().setAuthNote(EXISTING_USER_INFO,
-        // duplication.serialize());
-
-        // // Remove existing link. TODO: This is dangerous.
-        // logger.warnf("removing linked identity '%s' with user '%s'", providerId,
-        // existingUser.getId());
-        // session.users().removeFederatedIdentity(realm, existingUser, providerId);
-        // context.success();
-        // } else {
-        // // TODO check for match based on username / email
-        // // no match found, return to next in flow
-        // logger.warn("no matching user was found for globus identity");
-        // context.attempted();
-        // }
     }
 
-    /*
-     * This method will return an ExistingUserInfo if a matching federated identity
-     * is found in the identity set. If found, that status is passed on until later
-     * in the flow, and the duplicate handled. However, in the case that a match is
-     * not found, the superclass will create a new user.
-     * 
-     * TODO: keycloak cannot handle duplicate entries for the same IdP type. This
-     * will unconditionally remove the linked identity. This must be moved to after
-     * the email confirmation step, as the process can be interupted partway,
-     * leaving orphan accounts.
-     */
-    // protected UserModel findUserByIdentitySet(KeycloakSession session, RealmModel
-    // realm,
-    // BrokeredIdentityContext brokerContext) {
+    private List<GlobusIdentity> getIdentitiesFromToken(BrokeredIdentityContext brokerContext) {
+        JsonWebToken token = (JsonWebToken) brokerContext.getContextData().get(OIDCIdentityProvider.VALIDATED_ID_TOKEN);
+        Map<String, Object> otherClaims = token.getOtherClaims();
+        ObjectMapper mapper = new ObjectMapper();
+        List<GlobusIdentity> identity_set = mapper.convertValue(otherClaims.get(this.IDENTITY_SET_CLAIM),
+                new TypeReference<List<GlobusIdentity>>() {
+                });
+        return identity_set;
+    }
 
-    // logger.debug("Entered findUserByIdentitySet");
+    @Override
+    protected void actionImpl(AuthenticationFlowContext context, SerializedBrokeredIdentityContext serializedCtx,
+            BrokeredIdentityContext brokerContext) {
+        authenticateImpl(context, serializedCtx, brokerContext);
+    }
 
-    // // Unpack data from broker response
-    // String providerId = brokerContext.getIdpConfig().getAlias();
-    // List<GlobusIdentity> identity_set = extracted(brokerContext);
+    @Override
+    public boolean requiresUser() {
+        return false;
+    }
 
-    // // Check each identity in the set against the list of existing users in
-    // keycloak
-    // // If a match is found, return the match, otherwise, return null
-    // for (GlobusIdentity identity : identity_set) {
-    // // Build identity from token
-    // FederatedIdentityModel tokenIdentity = new FederatedIdentityModel(providerId,
-    // identity.getSub(),
-    // identity.getUsername(), brokerContext.getToken());
-    // // Find conflicting user
-    // UserModel federatedUser =
-    // session.users().getUserByFederatedIdentity(tokenIdentity, realm);
-    // logger.debugf("searching for '%s' user with username '%s'", providerId,
-    // identity.getUsername());
-    // return federatedUser;
-    // }
-
-    // logger.debugf("Federated user not found for provider '%s' and broker username
-    // '%s'", providerId,
-    // brokerContext.getUsername());
-    // // If null is return, depending on the flow, keycloak will create a new user
-    // return null;
-    // }
-
-    // private List<GlobusIdentity> extracted(BrokeredIdentityContext brokerContext)
-    // {
-    // JsonWebToken token = (JsonWebToken)
-    // brokerContext.getContextData().get(OIDCIdentityProvider.VALIDATED_ID_TOKEN);
-    // Map<String, Object> otherClaims = token.getOtherClaims();
-    // ObjectMapper mapper = new ObjectMapper();
-    // List<GlobusIdentity> identity_set =
-    // mapper.convertValue(otherClaims.get(this.IDENTITY_SET_CLAIM),
-    // new TypeReference<List<GlobusIdentity>>() {
-    // });
-    // return identity_set;
-    // }
-
+    @Override
+    public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
+        return false;
+    }
 }
