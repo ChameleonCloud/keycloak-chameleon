@@ -1,0 +1,2 @@
+# List here all IDP mappers which should be loaded by Keycloak.
+org.chameleoncloud.GlobusUserAttributeMapper
