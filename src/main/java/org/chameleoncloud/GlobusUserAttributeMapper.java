@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.chameleoncloud.representations.GlobusIdentity;
 import org.jboss.logging.Logger;
 import org.keycloak.broker.oidc.OIDCIdentityProviderFactory;
 import org.keycloak.broker.oidc.mappers.AbstractClaimMapper;
@@ -30,7 +31,11 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
     public static final String USER_ATTRIBUTE = "user.attribute";
     public static final String IDENTITY_SET = "identity_set";
 
-    private Set<String> getLinkedSubs(String providerId, UserModel user) {
+    public static final String getSubAttribute(String providerId, String sub) {
+        return String.join("_", providerId, "sub", sub);
+    }
+
+    public Set<String> getLinkedSubs(String providerId, UserModel user) {
         // Get all attributes from user
         String prefix = String.join("_", providerId, "sub");
         Map<String, List<String>> attributes = user.getAttributes();
@@ -44,10 +49,8 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
         for (String sub : tokenSubs) {
             // Set Key in the form <alias>_sub_<sub>: linked
             // We don't store list due to max length of DB field
-            String prefix = String.join("_", providerId, "sub", sub);
-            user.setSingleAttribute(prefix, "linked");
+            user.setSingleAttribute(getSubAttribute(providerId, sub), "linked");
         }
-
     }
 
     @Override
@@ -64,11 +67,11 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
         Object identity_set_claim = getClaimValue(context, IDENTITY_SET);
         if (identity_set_claim != null) {
             logger.debugv("Mapping IdentitySet for user {0}", user.getUsername());
-            List<Map<String, String>> tokenIdentities = JsonSerialization.mapper.convertValue(identity_set_claim,
-                    new TypeReference<List<Map<String, String>>>() {
+            List<GlobusIdentity> tokenIdentities = JsonSerialization.mapper.convertValue(identity_set_claim,
+                    new TypeReference<List<GlobusIdentity>>() {
                     });
             // Add each sub to the set of identities
-            Set<String> tokenSubs = tokenIdentities.stream().map(id -> id.get("sub")).collect(Collectors.toSet());
+            Set<String> tokenSubs = tokenIdentities.stream().map(id -> id.getSub()).collect(Collectors.toSet());
             addLinkedSubs(providerId, user, tokenSubs);
         }
     }
