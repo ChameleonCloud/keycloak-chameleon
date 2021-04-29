@@ -32,7 +32,7 @@ public class IdpLinkIdentitySetAuthenticator extends AbstractIdpAuthenticator {
         String attrName = GlobusUserAttributeMapper.getSubAttribute(providerId, tokenIdentity.getUserId());
         List<UserModel> existingUsers = session.users().searchForUserByUserAttribute(attrName,
                 GlobusUserAttributeMapper.SUB_LINKED, realm);
-        if (existingUsers.size() != 1) {
+        if (existingUsers.size() > 1) {
             // Fail if more than one candidate user is found
             context.failure(AuthenticationFlowError.USER_CONFLICT);
             return;
