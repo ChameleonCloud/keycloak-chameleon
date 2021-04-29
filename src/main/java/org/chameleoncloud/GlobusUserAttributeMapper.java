@@ -30,6 +30,7 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
     public static final String BROKER_ATTRIBUTE = "broker.attribute";
     public static final String USER_ATTRIBUTE = "user.attribute";
     public static final String IDENTITY_SET = "identity_set";
+    public static final String SUB_LINKED = "linked";
 
     public static final String getSubAttribute(String providerId, String sub) {
         return String.join("_", providerId, "sub", sub);
@@ -49,7 +50,7 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
         for (String sub : tokenSubs) {
             // Set Key in the form <alias>_sub_<sub>: linked
             // We don't store list due to max length of DB field
-            user.setSingleAttribute(getSubAttribute(providerId, sub), "linked");
+            user.setSingleAttribute(getSubAttribute(providerId, sub), SUB_LINKED);
         }
     }
 
