@@ -1,6 +1,7 @@
 package org.chameleoncloud;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -34,20 +35,32 @@ public class IdpLinkIdentitySetAuthenticator extends AbstractIdpAuthenticator {
                 GlobusUserAttributeMapper.SUB_LINKED, realm);
         if (existingUsers.size() > 1) {
             // Fail if more than one candidate user is found
+            logger.errorv("More than one user matches identity {0}! List: {1}", tokenIdentity.getUserName(),
+                    existingUsers.stream().map(u -> u.getId()).collect(Collectors.joining(",")));
             context.failure(AuthenticationFlowError.USER_CONFLICT);
             return;
-        }
-        UserModel federatedUser = existingUsers.get(0);
-        if (federatedUser != null) {
-            // Link existing user to this token.
-            session.users().removeFederatedIdentity(realm, federatedUser, providerId);
-            context.setUser(federatedUser);
-            context.success();
+        } else if (existingUsers.size() == 1) {
+            // Remove old identity and Link existing user to this token in one action.
+            // If not done together, the account can be "orphaned"
+            UserModel federatedUser = existingUsers.get(0);
+            if (federatedUser != null) {
+                session.users().removeFederatedIdentity(realm, federatedUser, providerId);
+                context.setUser(federatedUser);
+                context.success();
+                return;
+            } else {
+                // Something is wrong with the attribute search
+                logger.errorv("Search by attribute {0} has returned a null entry, escalate", attrName);
+                context.failure(AuthenticationFlowError.INVALID_USER);
+                return;
+            }
+        } else {
+            // try next in flow if no matches found, new user flow.
+            logger.debugv("No match in identity set for found for {0} username {1}", providerId,
+                    brokerContext.getUsername());
+            context.attempted();
             return;
         }
-        logger.warnv("No match in identity set for found for {0} username {1}", providerId,
-                brokerContext.getUsername());
-        context.attempted();
     }
 
     @Override
