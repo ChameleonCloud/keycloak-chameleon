@@ -46,35 +46,59 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
         return linkedSubs;
     }
 
-    private void addLinkedSubs(String providerId, UserModel user, Set<String> tokenSubs) {
-        for (String sub : tokenSubs) {
-            // Set Key in the form <alias>_sub_<sub>: linked
-            // We don't store list due to max length of DB field
-            user.setSingleAttribute(getSubAttribute(providerId, sub), SUB_LINKED);
+    private void storeIdentityAttribute(GlobusIdentity id, BrokeredIdentityContext context) {
+        /*
+         * Store a user attribute for each linked ID Each attribute will have key =
+         * <provider_alias>_<sub> The value is a list of strings, in order:
+         * <id_provider>,<organization>,<username>,<email>,<name> For example:
+         * ["google","uchicago","shermanm@uchicago.edu@accounts.google.com",
+         * "shermanm@uchicago.edu","Michael Shernam"]
+         */
+
+        // generate list from the attributes
+        List<String> identityValues = new ArrayList<String>();
+        identityValues.add(id.getIdentityProviderDisplayName());
+        identityValues.add(id.getOrganization());
+        identityValues.add(id.getUsername());
+        identityValues.add(id.getEmail());
+        identityValues.add(id.getName());
+
+        // generate stable key scoped to IDP alias
+        String providerId = context.getIdpConfig().getAlias();
+        String identityKey = getSubAttribute(providerId, id.getSub());
+
+        // add key to user attribute
+        context.setUserAttribute(identityKey, identityValues);
+
+    }
+
+    private List<GlobusIdentity> getLinkedIdentities(BrokeredIdentityContext context) {
+        // Get identity_set from any of ID token, access token, or userinfo endpoint
+        Object identity_set_claim = getClaimValue(context, IDENTITY_SET);
+        if (identity_set_claim != null) {
+            List<GlobusIdentity> tokenIdentities = JsonSerialization.mapper.convertValue(identity_set_claim,
+                    new TypeReference<List<GlobusIdentity>>() {
+                    });
+            return tokenIdentities;
         }
+        return null;
+    }
+
+    @Override
+    public void preprocessFederatedIdentity(KeycloakSession session, RealmModel realm,
+            IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
+
+        List<GlobusIdentity> tokenIdentities = getLinkedIdentities(context);
+        tokenIdentities.stream().forEach(id -> storeIdentityAttribute(id, context));
+
     }
 
     @Override
     public void updateBrokeredUser(KeycloakSession session, RealmModel realm, UserModel user,
             IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
-        /*
-         * Add each "sub" in the identity set to a user attribute. Each sub will be used
-         * in an authenticator later as equivelant identities.
-         */
 
-        String providerId = context.getIdpConfig().getAlias();
-
-        // Get identity_set from any of ID token, access token, or userinfo endpoint
-        Object identity_set_claim = getClaimValue(context, IDENTITY_SET);
-        if (identity_set_claim != null) {
-            logger.debugv("Mapping IdentitySet for user {0}", user.getUsername());
-            List<GlobusIdentity> tokenIdentities = JsonSerialization.mapper.convertValue(identity_set_claim,
-                    new TypeReference<List<GlobusIdentity>>() {
-                    });
-            // Add each sub to the set of identities
-            Set<String> tokenSubs = tokenIdentities.stream().map(id -> id.getSub()).collect(Collectors.toSet());
-            addLinkedSubs(providerId, user, tokenSubs);
-        }
+        List<GlobusIdentity> tokenIdentities = getLinkedIdentities(context);
+        tokenIdentities.stream().forEach(id -> storeIdentityAttribute(id, context));
     }
 
     @Override
