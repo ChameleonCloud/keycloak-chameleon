@@ -65,7 +65,7 @@ public class ChameleonUpdateProfile extends UpdateProfile {
         user.setAttribute(COUNTRY_OF_RESIDENCE, formData.get(this.userAttributeField(COUNTRY_OF_RESIDENCE)));
         user.setAttribute(COUNTRY_OF_CITIZENSHIP, formData.get(this.userAttributeField(COUNTRY_OF_CITIZENSHIP)));
 
-        AttributeFormDataProcessor.process(formData, realm, user);
+        AttributeFormDataProcessor.process(formData);
 
         context.success();
 
