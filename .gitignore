@@ -5,3 +5,8 @@ out/
 .project
 .settings
 .classpath
+
+# Ignore base template file which helps with FTL development
+# This file should not be checked into the repo, as it's part of the base keycloak source code
+# But when developing FTL templates, it helps to have access to this file
+src/main/resources/theme/chameleon/login/template.ftl
