@@ -1,13 +1,8 @@
 package org.chameleoncloud;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
+import org.keycloak.authentication.forms.RegistrationPage;
 import org.keycloak.authentication.requiredactions.UpdateProfile;
 import org.keycloak.authentication.requiredactions.util.UpdateProfileContext;
 import org.keycloak.authentication.requiredactions.util.UserUpdateProfileContext;
@@ -15,13 +10,17 @@ import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.forms.login.freemarker.model.ProfileBean;
-import org.keycloak.models.utils.FormMessage;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.utils.FormMessage;
 import org.keycloak.services.messages.Messages;
-import org.keycloak.services.resources.AttributeFormDataProcessor;
 import org.keycloak.services.validation.Validation;
+
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChameleonUpdateProfile extends UpdateProfile {
     public static final String PROVIDER_ID = "chameleon-update-profile-action";
@@ -51,7 +50,7 @@ public class ChameleonUpdateProfile extends UpdateProfile {
         final RealmModel realm = context.getRealm();
 
         final List<FormMessage> errors = this.validateForm(formData);
-        if (errors != null && !errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             final LoginFormsProvider form = context.form()
                 .setErrors(errors)
                 .setFormData(formData);
@@ -60,12 +59,10 @@ public class ChameleonUpdateProfile extends UpdateProfile {
             return;
         }
 
-        user.setFirstName(formData.getFirst("firstName"));
-        user.setLastName(formData.getFirst("lastName"));
+        user.setFirstName(formData.getFirst(RegistrationPage.FIELD_FIRST_NAME));
+        user.setLastName(formData.getFirst(RegistrationPage.FIELD_LAST_NAME));
         user.setAttribute(COUNTRY_OF_RESIDENCE, formData.get(this.userAttributeField(COUNTRY_OF_RESIDENCE)));
         user.setAttribute(COUNTRY_OF_CITIZENSHIP, formData.get(this.userAttributeField(COUNTRY_OF_CITIZENSHIP)));
-
-        AttributeFormDataProcessor.process(formData);
 
         context.success();
 
@@ -78,12 +75,12 @@ public class ChameleonUpdateProfile extends UpdateProfile {
     private List<FormMessage> validateForm(MultivaluedMap<String, String> formData) {
         List<FormMessage> errors = new ArrayList<>();
 
-        if (Validation.isBlank(formData.getFirst(Validation.FIELD_FIRST_NAME))) {
-            errors.add(new FormMessage(Validation.FIELD_FIRST_NAME, Messages.MISSING_FIRST_NAME));
+        if (Validation.isBlank(formData.getFirst(RegistrationPage.FIELD_FIRST_NAME))) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_FIRST_NAME, Messages.MISSING_FIRST_NAME));
         }
 
-        if (Validation.isBlank(formData.getFirst(Validation.FIELD_LAST_NAME))) {
-            errors.add(new FormMessage(Validation.FIELD_LAST_NAME, Messages.MISSING_LAST_NAME));
+        if (Validation.isBlank(formData.getFirst(RegistrationPage.FIELD_LAST_NAME))) {
+            errors.add(new FormMessage(RegistrationPage.FIELD_LAST_NAME, Messages.MISSING_LAST_NAME));
         }
 
         final String countryField = this.userAttributeField(COUNTRY_OF_RESIDENCE);
