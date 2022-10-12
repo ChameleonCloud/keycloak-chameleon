@@ -18,8 +18,8 @@ public class UserGroupRoles {
     public static final String MANAGER_GROUP_SUFFIX = "-managers";
 
     public static final Map<String, Integer> POLICY_HIERARCHY = Stream
-	    .of(new Object[][] { { ADMIN, 0 }, { MANAGER, 1 }, { MEMBER, 2 } })
-	    .collect(Collectors.toMap(policy -> (String) policy[0], rank -> (Integer) rank[1]));
+            .of(new Object[][]{{ADMIN, 0}, {MANAGER, 1}, {MEMBER, 2}})
+            .collect(Collectors.toMap(policy -> (String) policy[0], rank -> (Integer) rank[1]));
 
     protected String groupId;
     protected String groupName;
@@ -27,47 +27,47 @@ public class UserGroupRoles {
     protected Set<String> scopes;
 
     public void setGroupId(String groupId) {
-	this.groupId = groupId;
+        this.groupId = groupId;
     }
 
     public void setGroupName(String groupName) {
-	this.groupName = groupName;
+        this.groupName = groupName;
     }
 
     public void setPolicy(String policy) {
-	if (!POLICY_HIERARCHY.keySet().contains(policy)) {
-	    this.policy = null;
-	} else {
-	    this.policy = policy;
-	}
+        if (!POLICY_HIERARCHY.containsKey(policy)) {
+            this.policy = null;
+        } else {
+            this.policy = policy;
+        }
     }
 
     public void setScopes(Set<String> scopes) {
-	this.scopes = scopes;
+        this.scopes = scopes;
     }
 
     public String getGroupId() {
-	return this.groupId;
+        return this.groupId;
     }
 
     public String getGroupName() {
-	return this.groupName;
+        return this.groupName;
     }
 
     public String getPolicy() {
-	return this.policy;
+        return this.policy;
     }
 
     public Set<String> getScopes() {
-	return this.scopes;
+        return this.scopes;
     }
 
     public static String[] parsePolicyName(String policyName) {
-	return policyName.split(Pattern.quote(POLICY_SEPARATOR), 2);
+        return policyName.split(Pattern.quote(POLICY_SEPARATOR), 2);
     }
 
     public static String formatPolicyName(String policy, String groupId) {
-	return String.join(POLICY_SEPARATOR, policy, groupId);
+        return String.join(POLICY_SEPARATOR, policy, groupId);
     }
 
 }

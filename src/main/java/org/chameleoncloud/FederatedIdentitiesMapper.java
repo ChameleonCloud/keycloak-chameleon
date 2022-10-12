@@ -1,16 +1,8 @@
 package org.chameleoncloud;
 
-import org.keycloak.models.ClientSessionContext;
-import org.keycloak.models.FederatedIdentityModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.models.UserSessionModel;
+import org.keycloak.models.*;
 import org.keycloak.protocol.ProtocolMapperUtils;
-import org.keycloak.protocol.oidc.mappers.AbstractOIDCProtocolMapper;
-import org.keycloak.protocol.oidc.mappers.OIDCAccessTokenMapper;
-import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
-import org.keycloak.protocol.oidc.mappers.OIDCIDTokenMapper;
-import org.keycloak.protocol.oidc.mappers.UserInfoTokenMapper;
+import org.keycloak.protocol.oidc.mappers.*;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.representations.IDToken;
 
@@ -82,16 +74,15 @@ public class FederatedIdentitiesMapper extends AbstractOIDCProtocolMapper
 
     @Override
     protected void setClaim(final IDToken token, final ProtocolMapperModel mappingModel,
-            final UserSessionModel userSession, final KeycloakSession keycloakSession,
-            final ClientSessionContext clientSessionCtx) {
+                            final UserSessionModel userSession, final KeycloakSession keycloakSession,
+                            final ClientSessionContext clientSessionCtx) {
         final Set<FederatedIdentityModel> identities = keycloakSession.users()
-                .getFederatedIdentities(userSession.getUser(), userSession.getRealm());
+                .getFederatedIdentitiesStream(userSession.getRealm(), userSession.getUser()).collect(
+                        Collectors.toSet());
 
         final List<String> identityNames = identities.stream()
-                .map(identity -> identity.getIdentityProvider())
+                .map(FederatedIdentityModel::getIdentityProvider).sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());
-
-        identityNames.sort(Comparator.naturalOrder());
 
         OIDCAttributeMapperHelper.mapClaim(token, mappingModel, identityNames);
     }

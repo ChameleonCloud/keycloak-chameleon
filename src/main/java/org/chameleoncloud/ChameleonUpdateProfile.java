@@ -52,8 +52,8 @@ public class ChameleonUpdateProfile extends UpdateProfile {
         final List<FormMessage> errors = this.validateForm(formData);
         if (!errors.isEmpty()) {
             final LoginFormsProvider form = context.form()
-                .setErrors(errors)
-                .setFormData(formData);
+                    .setErrors(errors)
+                    .setFormData(formData);
             final Response challenge = this.createChallenge(form, user, realm, formData);
             context.challenge(challenge);
             return;

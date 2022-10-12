@@ -1,28 +1,18 @@
 package org.chameleoncloud;
 
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import org.keycloak.models.*;
+import org.keycloak.protocol.ProtocolMapperUtils;
+import org.keycloak.protocol.oidc.mappers.*;
+import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.representations.IDToken;
+import org.keycloak.util.JsonSerialization;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import org.keycloak.models.ClientSessionContext;
-import org.keycloak.models.GroupModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.models.UserSessionModel;
-import org.keycloak.protocol.ProtocolMapperUtils;
-import org.keycloak.protocol.oidc.mappers.AbstractOIDCProtocolMapper;
-import org.keycloak.protocol.oidc.mappers.OIDCAccessTokenMapper;
-import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
-import org.keycloak.protocol.oidc.mappers.OIDCIDTokenMapper;
-import org.keycloak.protocol.oidc.mappers.UserInfoTokenMapper;
-import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.representations.IDToken;
-import org.keycloak.util.JsonSerialization;
 
 /*
  * Our own example protocol mapper.
@@ -102,17 +92,16 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
 
     @Override
     protected void setClaim(final IDToken token, final ProtocolMapperModel mappingModel,
-            final UserSessionModel userSession, final KeycloakSession keycloakSession,
-            final ClientSessionContext clientSessionCtx) {
-        final Map<String,String> config = mappingModel.getConfig();
-        final Map<String,Object> claims = token.getOtherClaims();
+                            final UserSessionModel userSession, final KeycloakSession keycloakSession,
+                            final ClientSessionContext clientSessionCtx) {
+        final Map<String, String> config = mappingModel.getConfig();
+        final Map<String, Object> claims = token.getOtherClaims();
 
-        final List<ChameleonProject> projects = userSession.getUser().getGroups()
-            .stream()
-            .filter(this::isActive)
-            .map(this::toProjectRepresentation)
-            .sorted()
-            .collect(Collectors.toList());
+        final List<ChameleonProject> projects = userSession.getUser().getGroupsStream()
+                .filter(this::isActive)
+                .map(this::toProjectRepresentation)
+                .sorted()
+                .collect(Collectors.toList());
 
         if (projects.isEmpty()) {
             return;
@@ -121,8 +110,8 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
         claims.put(config.get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME), projects);
 
         final List<String> projectIds = projects.stream()
-            .map(project -> project.id)
-            .collect(Collectors.toList());
+                .map(project -> project.id)
+                .collect(Collectors.toList());
 
         claims.put(config.get(TOKEN_FLAT_CLAIM_NAME), projectIds);
     }
@@ -135,17 +124,18 @@ public class ChameleonProjectMapper extends AbstractOIDCProtocolMapper
         }
 
         final String hasActiveAllocation = group.getAttributes()
-            .getOrDefault("has_active_allocation", Collections.emptyList())
-            .stream()
-            .findFirst().orElse("false");
+                .getOrDefault("has_active_allocation", Collections.emptyList())
+                .stream()
+                .findFirst().orElse("false");
         return Boolean.parseBoolean(hasActiveAllocation);
     }
 
     protected ChameleonProject toProjectRepresentation(final GroupModel group) {
-        final Optional<String> nickname = group.getAttributes()
-            .getOrDefault("nickname", Collections.emptyList())
-            .stream()
-            .findFirst();
+        final String nickname = group.getAttributes()
+                .getOrDefault("nickname", Collections.emptyList())
+                .stream()
+                .findFirst()
+                .orElse("");
         return new ChameleonProject(group.getName(), nickname);
     }
 

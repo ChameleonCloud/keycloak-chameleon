@@ -7,27 +7,27 @@ import org.keycloak.services.resource.RealmResourceProvider;
 import org.keycloak.services.resource.RealmResourceProviderFactory;
 
 public class TermsAndConditionsPageProviderFactory implements RealmResourceProviderFactory {
-  public static final String ID = "terms";
+    public static final String ID = "terms";
 
-  @Override
-  public String getId() {
-    return ID;
-  }
+    @Override
+    public String getId() {
+        return ID;
+    }
 
-  @Override
-  public RealmResourceProvider create(KeycloakSession session) {
-    return new TermsAndConditionsPageProvider(session);
-  }
+    @Override
+    public RealmResourceProvider create(KeycloakSession session) {
+        return new TermsAndConditionsPageProvider(session);
+    }
 
-  @Override
-  public void init(Scope config) {
-  }
+    @Override
+    public void init(Scope config) {
+    }
 
-  @Override
-  public void postInit(KeycloakSessionFactory factory) {
-  }
+    @Override
+    public void postInit(KeycloakSessionFactory factory) {
+    }
 
-  @Override
-  public void close() {
-  }
+    @Override
+    public void close() {
+    }
 }

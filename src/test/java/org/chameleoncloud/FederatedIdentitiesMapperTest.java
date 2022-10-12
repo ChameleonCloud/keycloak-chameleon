@@ -93,7 +93,7 @@ public class FederatedIdentitiesMapperTest {
         KeycloakSession keycloakSession = mock(KeycloakSession.class);
         UserProvider userProvider = mock(UserProvider.class);
         when(keycloakSession.users()).thenReturn(userProvider);
-        when(userProvider.getFederatedIdentities(any(UserModel.class), any(RealmModel.class)))
+        when(userProvider.getFederatedIdentitiesStream(any(RealmModel.class), any(UserModel.class)).collect(Collectors.toSet()))
                 .thenReturn(identityProviders);
         return keycloakSession;
     }

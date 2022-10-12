@@ -1,14 +1,6 @@
-
 package org.chameleoncloud;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import org.chameleoncloud.representations.GlobusIdentity;
 import org.jboss.logging.Logger;
 import org.keycloak.broker.oidc.OIDCIdentityProviderFactory;
@@ -21,9 +13,15 @@ import org.keycloak.models.UserModel;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.util.JsonSerialization;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class GlobusUserAttributeMapper extends AbstractClaimMapper {
     public static final String PROVIDER_ID = "globus-user-attribute-mapper";
-    private static final String[] cp = new String[] { OIDCIdentityProviderFactory.PROVIDER_ID };
+    private static final String[] cp = new String[]{OIDCIdentityProviderFactory.PROVIDER_ID};
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<>();
     private static final Logger logger = Logger.getLogger(GlobusUserAttributeMapper.class);
 
@@ -32,7 +30,7 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
     public static final String IDENTITY_SET = "identity_set";
     public static final String SUB_LINKED = "linked";
 
-    public static final String getSubAttribute(String providerId, String sub) {
+    public static String getSubAttribute(String providerId, String sub) {
         return String.join("_", providerId, "sub", sub);
     }
 
@@ -41,7 +39,7 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
         String prefix = String.join("_", providerId, "sub");
         Map<String, List<String>> attributes = user.getAttributes();
         Set<String> linkedSubs = attributes.keySet().stream().filter(k -> k.startsWith(prefix))
-                .map(k -> user.getFirstAttribute(k)).collect(Collectors.toSet());
+                .map(user::getFirstAttribute).collect(Collectors.toSet());
 
         return linkedSubs;
     }
@@ -56,7 +54,7 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
 
     @Override
     public void updateBrokeredUser(KeycloakSession session, RealmModel realm, UserModel user,
-            IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
+                                   IdentityProviderMapperModel mapperModel, BrokeredIdentityContext context) {
         /*
          * Add each "sub" in the identity set to a user attribute. Each sub will be used
          * in an authenticator later as equivelant identities.
@@ -69,10 +67,10 @@ public class GlobusUserAttributeMapper extends AbstractClaimMapper {
         if (identity_set_claim != null) {
             logger.debugv("Mapping IdentitySet for user {0}", user.getUsername());
             List<GlobusIdentity> tokenIdentities = JsonSerialization.mapper.convertValue(identity_set_claim,
-                    new TypeReference<List<GlobusIdentity>>() {
+                    new TypeReference<>() {
                     });
             // Add each sub to the set of identities
-            Set<String> tokenSubs = tokenIdentities.stream().map(id -> id.getSub()).collect(Collectors.toSet());
+            Set<String> tokenSubs = tokenIdentities.stream().map(GlobusIdentity::getSub).collect(Collectors.toSet());
             addLinkedSubs(providerId, user, tokenSubs);
         }
     }

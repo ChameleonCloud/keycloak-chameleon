@@ -1,27 +1,23 @@
 package org.chameleoncloud;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ChameleonProject implements Comparable {
-  @JsonProperty("id")
-  protected String id;
+import javax.validation.constraints.NotNull;
 
-  @JsonProperty("nickname")
-  protected Optional<String> nickname;
+public class ChameleonProject implements Comparable<ChameleonProject> {
+    @JsonProperty("id")
+    protected String id;
 
-  public ChameleonProject(final String id, final Optional<String> nickname) {
-    this.id = id;
-    this.nickname = nickname;
-  }
+    @JsonProperty("nickname")
+    protected String nickname;
 
-  @Override
-  public int compareTo(Object o) {
-    if (!(o instanceof ChameleonProject)) {
-      return -1;
+    public ChameleonProject(final String id, final String nickname) {
+        this.id = id;
+        this.nickname = nickname;
     }
-    final ChameleonProject other = (ChameleonProject)o;
-    return this.id.compareTo(other.id);
-  }
+
+    @Override
+    public int compareTo(@NotNull ChameleonProject o) {
+        return this.id.compareTo(o.id);
+    }
 }
