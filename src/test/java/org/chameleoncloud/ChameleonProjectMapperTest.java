@@ -1,29 +1,22 @@
 package org.chameleoncloud;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.junit.Test;
-import org.keycloak.models.ClientModel;
-import org.keycloak.models.GroupModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.models.RoleModel;
-import org.keycloak.models.UserModel;
-import org.keycloak.models.UserSessionModel;
+import org.keycloak.models.*;
 import org.keycloak.protocol.ProtocolMapperUtils;
 import org.keycloak.protocol.oidc.mappers.FullNameMapper;
 import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.representations.AccessToken;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class ChameleonProjectMapperTest {
 
@@ -63,7 +56,7 @@ public class ChameleonProjectMapperTest {
 
     @Test
     public void shouldAddProjectClaims() {
-        final Set<GroupModel> groups = Set.of(groupModel("project-1", null), groupModel("project-2", "nickname-2"));
+        final Stream<GroupModel> groups = Stream.of(groupModel("project-1", null), groupModel("project-2", "nickname-2"));
         final UserSessionModel userSession = givenUserSession(groups);
         final AccessToken accessToken = transformAccessToken(givenKeycloakSession(), userSession);
         assertThat(accessToken.getOtherClaims().get(CLAIM_NAME))
@@ -77,7 +70,7 @@ public class ChameleonProjectMapperTest {
     public void shouldFilterOutInactiveProjects() {
         final GroupModel inactiveGroup = groupModel("project-inactive", null);
         inactiveGroup.setSingleAttribute("has_active_allocation", "false");
-        final UserSessionModel userSession = givenUserSession(Set.of(groupModel("project-1", null), inactiveGroup));
+        final UserSessionModel userSession = givenUserSession(Stream.of(groupModel("project-1", null), inactiveGroup));
         final AccessToken accessToken = transformAccessToken(givenKeycloakSession(), userSession);
         assertThat(accessToken.getOtherClaims().get(CLAIM_NAME))
                 .usingRecursiveComparison().isEqualTo(List.of(new ChameleonProject("project-1", "")));
@@ -85,9 +78,9 @@ public class ChameleonProjectMapperTest {
                 .isEqualTo(List.of("project-1"));
     }
 
-    private UserSessionModel givenUserSession(Set<GroupModel> userGroups) {
+    private UserSessionModel givenUserSession(Stream<GroupModel> userGroups) {
         UserModel user = mock(UserModel.class);
-        when(user.getGroupsStream().collect(Collectors.toSet())).thenReturn(userGroups);
+        when(user.getGroupsStream()).thenReturn(userGroups);
         UserSessionModel userSession = mock(UserSessionModel.class);
         when(userSession.getUser()).thenReturn(user);
         return userSession;

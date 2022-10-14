@@ -1,29 +1,24 @@
 package org.chameleoncloud;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Test;
+import org.keycloak.models.*;
+import org.keycloak.protocol.ProtocolMapperUtils;
+import org.keycloak.protocol.oidc.mappers.FullNameMapper;
+import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
+import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.representations.AccessToken;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.junit.Test;
-import org.keycloak.models.FederatedIdentityModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.ProtocolMapperModel;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserModel;
-import org.keycloak.models.UserProvider;
-import org.keycloak.models.UserSessionModel;
-import org.keycloak.protocol.ProtocolMapperUtils;
-import org.keycloak.protocol.oidc.mappers.FullNameMapper;
-import org.keycloak.protocol.oidc.mappers.OIDCAttributeMapperHelper;
-import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.representations.AccessToken;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FederatedIdentitiesMapperTest {
 
@@ -93,8 +88,9 @@ public class FederatedIdentitiesMapperTest {
         KeycloakSession keycloakSession = mock(KeycloakSession.class);
         UserProvider userProvider = mock(UserProvider.class);
         when(keycloakSession.users()).thenReturn(userProvider);
-        when(userProvider.getFederatedIdentitiesStream(any(RealmModel.class), any(UserModel.class)).collect(Collectors.toSet()))
-                .thenReturn(identityProviders);
+        Stream<FederatedIdentityModel> idpStream = identityProviders.stream();
+        when(userProvider.getFederatedIdentitiesStream(any(RealmModel.class), any(UserModel.class)))
+                .thenReturn(idpStream);
         return keycloakSession;
     }
 
