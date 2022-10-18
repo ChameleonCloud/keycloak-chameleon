@@ -30,7 +30,10 @@ make publish
 
 ### Testing a version
 
-Keycloak modules support hot deployment; by placing a module in the Keycloak modules directory (e.g., /opt/jboss/keycloak/modules when using the [JBoss Keycloak Docker image](https://hub.docker.com/r/jboss/keycloak/)), Keycloak will automatically reload it without a restart.
+Keycloak providers (plugins, extensions, etc.) must be placed in the in the Keycloak modules directory 
+(/opt/keycloak/providers when using the 
+[Keycloak Docker image](https://quay.io/repository/keycloak/keycloak?tab=info). 
+Keycloak must be restarted (and rebuilt if auto-build is not enabled) to load the provider.
 
 > **Note**: if a theme template is updated, hot-reloading doesn't seem to pick up template changes. In this case, a restart of the Keycloak service is necessary.
 
