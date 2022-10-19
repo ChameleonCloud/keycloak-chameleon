@@ -3,7 +3,7 @@ name: Docker
 on:
   workflow_run:
     workflows: ["Maven Package"]
-    types: ["success"]
+    types: ["completed"]
 
 env:
   # Use docker.io for Docker Hub if empty
