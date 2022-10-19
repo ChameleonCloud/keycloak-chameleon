@@ -17,7 +17,7 @@
         <resteasy.version>3.15.3.Final</resteasy.version>
         <keycloak.version>17.0.0</keycloak.version>
         <!-- the version of this build and all depending projects -->
-        <revision>17.0.0</revision>
+        <revision>17.0.0-b</revision>
     </properties>
 
     <build>
