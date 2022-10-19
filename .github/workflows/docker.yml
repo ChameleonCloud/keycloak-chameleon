@@ -67,6 +67,8 @@ jobs:
 
       # Get the latest release of the Chameleon Keycloak plugin
       - name: Get latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api graphql -F owner=${{ github.event.repository.owner }} -F name=${{ github.event.repository.name }} -f query='
             query($name: String!, $owner: String!) {
