@@ -70,14 +70,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api graphql -F owner=${{ github.repository_owner }} -F name=${{ github.event.repository.name }} -f query='
+          RELEASE=$(gh api graphql -F owner=${{ github.repository_owner }} -F name=${{ github.event.repository.name }} -f query='
             query($name: String!, $owner: String!) {
                repository(owner: $owner, name: $name) {
                                    releases(first: 1) {
                                      nodes { tagName }
                                  }
                }
-            }' | jq --raw-output '.data.repository.releases.nodes | first | .tagName' >> $GITHUB_ENV
+            }' | jq --raw-output '.data.repository.releases.nodes | first | .tagName') 
+          echo "RELEASE=$RELEASE" >> $GITHUB_ENV
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
