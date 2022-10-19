@@ -2,8 +2,13 @@
 name: Docker
 on:
   workflow_run:
-    workflows: ["Maven Package"]
-    types: ["completed"]
+    workflows: [ "Maven Package" ]
+    types: [ "completed" ]
+  push:
+    branches: [ "master" ]
+    paths:
+      - Dockerfile
+      - .github/workflows/docker.yml
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -63,7 +68,14 @@ jobs:
       # Get the latest release of the Chameleon Keycloak plugin
       - name: Get latest release
         run: |
-          echo "LATEST_RELEASE=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+          gh api graphql -F owner=${{ github.event.repository.owner }} -F name=${{ github.event.repository.name }} -f query='
+            query($name: String!, $owner: String!) {
+               repository(owner: $owner, name: $name) {
+                                   releases(first: 1) {
+                                     nodes { tagName }
+                                 }
+               }
+            }' | jq --raw-output '.data.repository.releases.nodes | first | .tagName'
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
