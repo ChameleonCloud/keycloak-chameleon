@@ -70,7 +70,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api graphql -F owner=${{ github.event.repository.owner }} -F name=${{ github.event.repository.name }} -f query='
+          gh api graphql -F owner=${{ github.repository_owner }} -F name=${{ github.event.repository.name }} -f query='
             query($name: String!, $owner: String!) {
                repository(owner: $owner, name: $name) {
                                    releases(first: 1) {
