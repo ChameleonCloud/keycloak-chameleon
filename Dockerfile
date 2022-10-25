@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:17.0.0 as build
+FROM quay.io/keycloak/keycloak:18.0.0 as build
 
 ARG RELEASE
 ARG GITHUB_TOKEN
@@ -19,7 +19,7 @@ RUN /opt/keycloak/bin/kc.sh build \
     --spi-chameleon-post-logout-page-enabled=true \
     --spi-chameleon-terms-and-conditions-page-enabled=true
 
-FROM quay.io/keycloak/keycloak:17.0.0 as release
+FROM quay.io/keycloak/keycloak:18.0.0 as release
 
 COPY --from=build /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
