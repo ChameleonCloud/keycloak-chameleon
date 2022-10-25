@@ -33,7 +33,7 @@ public class PostLogoutPageProvider implements RealmResourceProvider {
 
         if (clientId != null) {
             final RealmModel realm = session.getContext().getRealm();
-            final ClientModel client = session.clientStorageManager().getClientByClientId(realm, clientId);
+            final ClientModel client = session.clients().getClientById(realm, clientId);
             if (client != null) {
                 form.setAttribute("client", new ClientBean(session, client));
             }
