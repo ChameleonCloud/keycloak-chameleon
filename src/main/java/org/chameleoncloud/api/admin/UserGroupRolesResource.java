@@ -154,13 +154,13 @@ public class UserGroupRolesResource {
             // policy not associated
             // check if the associated policy exists
             ResourceServer rs = groupScopePolicy.getResourceServer();
-            Policy associatedPolicy = policyStore.findByName(associatedPolicyName, rs.getId());
+            Policy associatedPolicy = policyStore.findByName(rs, associatedPolicyName);
             if (associatedPolicy == null) {
                 // create a policy
                 GroupPolicyRepresentation rep = new GroupPolicyRepresentation();
                 rep.setName(associatedPolicyName);
                 rep.addGroup(subGroup.getId(), true);
-                associatedPolicy = policyStore.create(rep, groupScopePolicy.getResourceServer());
+                associatedPolicy = policyStore.create(groupScopePolicy.getResourceServer(), rep);
             }
             groupScopePolicy.addAssociatedPolicy(associatedPolicy);
         }
@@ -351,18 +351,18 @@ public class UserGroupRolesResource {
         session.users().getGroupMembersStream(realm, group)
                 .forEach(member -> result.put(member.getUsername(), UserGroupRoles.MEMBER));
 
-        String resourceServerId = adminPermissionManagement.clients()
-                .resourceServer(adminPermissionManagement.getRealmManagementClient()).getId();
+        ResourceServer resourceServer = adminPermissionManagement.clients()
+                .resourceServer(adminPermissionManagement.getRealmManagementClient());
 
-        Policy adminPolicy = policyStore.findByName(
-                UserGroupRoles.formatPolicyName(UserGroupRoles.ADMIN, groupId), resourceServerId);
+        Policy adminPolicy = policyStore.findByName(resourceServer,
+                UserGroupRoles.formatPolicyName(UserGroupRoles.ADMIN, groupId));
         Set<String> adminSubGroupIds = new HashSet<>();
         if (adminPolicy != null) {
             adminSubGroupIds = getGroupIdsFromPolicyConfig(adminPolicy.getConfig());
         }
 
-        Policy managerPolicy = policyStore.findByName(
-                UserGroupRoles.formatPolicyName(UserGroupRoles.MANAGER, groupId), resourceServerId);
+        Policy managerPolicy = policyStore.findByName(resourceServer,
+                UserGroupRoles.formatPolicyName(UserGroupRoles.MANAGER, groupId));
         Set<String> managerSubGroupIds = new HashSet<>();
         if (managerPolicy != null) {
             managerSubGroupIds = getGroupIdsFromPolicyConfig(managerPolicy.getConfig());
