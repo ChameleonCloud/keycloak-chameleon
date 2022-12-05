@@ -17,7 +17,10 @@ ADD --chown=keycloak https://dlm.mariadb.com/2531428/Connectors/java/connector-j
 RUN /opt/keycloak/bin/kc.sh build \
     --spi-chameleon-extended-api-enabled=true \
     --spi-chameleon-post-logout-page-enabled=true \
-    --spi-chameleon-terms-and-conditions-page-enabled=true
+    --spi-chameleon-terms-and-conditions-page-enabled=true \
+    # This allows backwards compatibility with deprecated redirects.
+    # This should eventually be removed, but only after all clients have been migrated
+    --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
 
 FROM quay.io/keycloak/keycloak:19.0.3 as release
 
