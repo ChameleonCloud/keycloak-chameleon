@@ -1,0 +1,44 @@
+# Development docker compose
+---
+version: '3.4'
+
+services:
+  keycloak:
+    image: keycloak-chameleon
+    environment:
+      KC_DB_URL: jdbc:mysql://keycloak_db:3306/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_pass
+      KEYCLOAK_LOGLEVEL: DEBUG
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_HOSTNAME: localhost
+      KEYCLOAK_ALWAYS_HTTPS: "true"
+      PROXY_ADDRESS_FORWARDING: "false"
+    depends_on:
+      - keycloak_db
+    command: start-dev
+
+  keycloak_db:
+    image: mariadb
+    environment:
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: keycloak_pass
+      MYSQL_ROOT_PASSWORD: keycloak_pass
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  keycloak_nginx:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/certs
+    ports:
+     - "8080:443"
+
+volumes:
+  mariadb_data:
+
