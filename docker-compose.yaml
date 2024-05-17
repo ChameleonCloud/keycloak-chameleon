@@ -19,7 +19,9 @@ services:
       PROXY_ADDRESS_FORWARDING: "false"
     depends_on:
       - keycloak_db
-    command: start-dev
+    command: start-dev --import-realm
+    volumes:
+      - ./realm_exports/:/opt/keycloak/data/import
 
   keycloak_db:
     image: mariadb
@@ -36,7 +38,6 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ../certs:/certs
-      - ../chameleon_services/realm_exports/:/opt/keycloak/data/import
     ports:
      - "8080:443"
 
