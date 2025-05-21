@@ -14,10 +14,10 @@
         <!-- The version we set here we got from the keycloak pom
         see https://github.com/keycloak/keycloak/blob/master/pom.xml
         -->
-        <resteasy.version>3.15.3.Final</resteasy.version>
-        <keycloak.version>19.0.3</keycloak.version>
-        <!-- the version of this build and all depending projects -->
-	<revision>19.0.5</revision>
+        <resteasy.version>4.7.7.Final</resteasy.version>
+        <keycloak.version>20.0.5</keycloak.version>
+        <!-- the version of this build and all depending projects-->
+        <revision>20.0.5</revision>
     </properties>
 
     <build>
