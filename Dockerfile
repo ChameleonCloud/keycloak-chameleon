@@ -1,6 +1,6 @@
-FROM quay.io/keycloak/keycloak:20.0.5 AS build
+FROM quay.io/keycloak/keycloak:22.0.5 AS build
 
-ARG RELEASE=20.0.5
+ARG RELEASE=22.0.5
 ARG GITHUB_TOKEN
 
 ENV KC_HEALTH_ENABLED=true
