@@ -8,7 +8,6 @@ import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.services.resource.RealmResourceProvider;
-import org.keycloak.theme.FreeMarkerUtil;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.QueryParam;
@@ -29,7 +28,7 @@ public class PostLogoutPageProvider implements RealmResourceProvider {
     @GET
     @NoCache
     public Response get(@QueryParam("client_id") String clientId) {
-        final LoginFormsProvider form = new FreeMarkerLoginFormsProvider(session, new FreeMarkerUtil());
+        final LoginFormsProvider form = new FreeMarkerLoginFormsProvider(session);
 
         if (clientId != null) {
             final RealmModel realm = session.getContext().getRealm();

@@ -1,6 +1,6 @@
-FROM quay.io/keycloak/keycloak:19.0.3 as build
+FROM quay.io/keycloak/keycloak:20.0.5 AS build
 
-ARG RELEASE
+ARG RELEASE=20.0.5
 ARG GITHUB_TOKEN
 
 ENV KC_HEALTH_ENABLED=true
@@ -22,7 +22,7 @@ RUN /opt/keycloak/bin/kc.sh build \
     # This should eventually be removed, but only after all clients have been migrated
     --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
 
-FROM quay.io/keycloak/keycloak:19.0.3 as release
+FROM quay.io/keycloak/keycloak:19.0.3 AS release
 
 COPY --from=build /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak

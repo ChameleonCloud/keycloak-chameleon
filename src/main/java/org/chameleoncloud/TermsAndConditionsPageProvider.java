@@ -5,7 +5,6 @@ import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.forms.login.freemarker.FreeMarkerLoginFormsProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.services.resource.RealmResourceProvider;
-import org.keycloak.theme.FreeMarkerUtil;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.QueryParam;
@@ -26,7 +25,7 @@ public class TermsAndConditionsPageProvider implements RealmResourceProvider {
     @GET
     @NoCache
     public Response get(@QueryParam("client_id") String clientId) {
-        final LoginFormsProvider form = new FreeMarkerLoginFormsProvider(session, new FreeMarkerUtil());
+        final LoginFormsProvider form = new FreeMarkerLoginFormsProvider(session);
         form.setAttribute("hideActions", true);
         return form.createForm("terms.ftl");
     }

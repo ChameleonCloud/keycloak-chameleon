@@ -209,5 +209,30 @@ public class ChameleonProjectMapperTest {
 
         public void removeChild(GroupModel subGroup) {
         }
+
+        @Override
+        public Stream<RoleModel> getRealmRoleMappingsStream() {
+            throw new UnsupportedOperationException("Unimplemented method 'getRealmRoleMappingsStream'");
+        }
+
+        @Override
+        public Stream<RoleModel> getClientRoleMappingsStream(ClientModel app) {
+            throw new UnsupportedOperationException("Unimplemented method 'getClientRoleMappingsStream'");
+        }
+
+        @Override
+        public Stream<RoleModel> getRoleMappingsStream() {
+            throw new UnsupportedOperationException("Unimplemented method 'getRoleMappingsStream'");
+        }
+
+        @Override
+        public Stream<String> getAttributeStream(String name) {
+            throw new UnsupportedOperationException("Unimplemented method 'getAttributeStream'");
+        }
+
+        @Override
+        public Stream<GroupModel> getSubGroupsStream() {
+            throw new UnsupportedOperationException("Unimplemented method 'getSubGroupsStream'");
+        }
     }
 }
