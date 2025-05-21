@@ -3,7 +3,7 @@ package org.chameleoncloud.api;
 import org.chameleoncloud.api.admin.ChameleonAdminRoot;
 import org.keycloak.models.KeycloakSession;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 public class ApiRoot {
 

@@ -10,8 +10,8 @@ import org.keycloak.services.resources.admin.AdminRoot;
 import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
 import org.keycloak.services.resources.admin.permissions.AdminPermissions;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Context;
 
 public class ChameleonAdminRoot extends AdminRoot {
 

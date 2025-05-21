@@ -18,9 +18,9 @@ import org.keycloak.services.resources.admin.permissions.AdminPermissionManageme
 import org.keycloak.services.resources.admin.permissions.AdminPermissions;
 import org.keycloak.services.resources.admin.permissions.GroupPermissionManagement;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -196,7 +196,7 @@ public class UserGroupRolesResource {
         Set<GroupModel> userGroups = user.getGroupsStream().collect(Collectors.toSet());
 
         if (groupId != null) {
-            GroupModel group = session.realms().getGroupsStream(realm, Stream.of(groupId)).findFirst().orElseThrow();
+            GroupModel group = session.groups().getGroupsStream(realm, Stream.of(groupId)).findFirst().orElseThrow();
             Set<String> filterGroups = new HashSet<>();
             filterGroups.add(groupId);
             for (GroupModel g : group.getSubGroupsStream().collect(Collectors.toSet())) {
@@ -276,9 +276,9 @@ public class UserGroupRolesResource {
 
         GroupModel group;
         if (requestGroupId != null) {
-            group = session.realms().getGroupsStream(realm, Stream.of(requestGroupId)).findFirst().orElseThrow();
+            group = session.groups().getGroupsStream(realm, Stream.of(requestGroupId)).findFirst().orElseThrow();
         } else {
-            group = session.realms().getGroupsStream(realm)
+            group = session.groups().getGroupsStream(realm)
                     .filter(g -> requestGroupName.equals(g.getName())).findFirst().orElse(null);
         }
         if (group == null) {
@@ -340,7 +340,7 @@ public class UserGroupRolesResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getGroupMemberRoles(@PathParam("group") String groupId) {
 
-        Optional<GroupModel> groupSearch = session.realms().getGroupsStream(realm, Stream.of(groupId)).findFirst();
+        Optional<GroupModel> groupSearch = session.groups().getGroupsStream(realm, Stream.of(groupId)).findFirst();
         if (groupSearch.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).entity("group not found!").build();
         }
