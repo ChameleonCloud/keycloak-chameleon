@@ -51,7 +51,8 @@ public class FederatedIdentitiesMapperTest {
                 .map(ProviderConfigProperty::getName).collect(Collectors.toList());
         assertThat(configPropertyNames).containsExactly(ProtocolMapperUtils.MULTIVALUED,
                 OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME, OIDCAttributeMapperHelper.INCLUDE_IN_ID_TOKEN,
-                OIDCAttributeMapperHelper.INCLUDE_IN_ACCESS_TOKEN, OIDCAttributeMapperHelper.INCLUDE_IN_USERINFO);
+                OIDCAttributeMapperHelper.INCLUDE_IN_ACCESS_TOKEN, OIDCAttributeMapperHelper.INCLUDE_IN_LIGHTWEIGHT_ACCESS_TOKEN,
+                OIDCAttributeMapperHelper.INCLUDE_IN_USERINFO);
     }
 
     @Test
@@ -86,6 +87,10 @@ public class FederatedIdentitiesMapperTest {
 
     private KeycloakSession givenKeycloakSession(Set<FederatedIdentityModel> identityProviders) {
         KeycloakSession keycloakSession = mock(KeycloakSession.class);
+        KeycloakContext context = mock(KeycloakContext.class);
+        when(keycloakSession.getContext()).thenReturn(context);
+        ClientModel client = mock(ClientModel.class);
+        when(context.getClient()).thenReturn(client);
         UserProvider userProvider = mock(UserProvider.class);
         when(keycloakSession.users()).thenReturn(userProvider);
         Stream<FederatedIdentityModel> idpStream = identityProviders.stream();

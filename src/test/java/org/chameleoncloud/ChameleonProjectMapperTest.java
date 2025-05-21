@@ -51,7 +51,7 @@ public class ChameleonProjectMapperTest {
         assertThat(configPropertyNames).containsExactly(ProtocolMapperUtils.MULTIVALUED,
                 OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME, ChameleonProjectMapper.TOKEN_FLAT_CLAIM_NAME,
                 OIDCAttributeMapperHelper.INCLUDE_IN_ID_TOKEN, OIDCAttributeMapperHelper.INCLUDE_IN_ACCESS_TOKEN,
-                OIDCAttributeMapperHelper.INCLUDE_IN_USERINFO);
+                OIDCAttributeMapperHelper.INCLUDE_IN_LIGHTWEIGHT_ACCESS_TOKEN, OIDCAttributeMapperHelper.INCLUDE_IN_USERINFO);
     }
 
     @Test
@@ -95,7 +95,12 @@ public class ChameleonProjectMapperTest {
     }
 
     private KeycloakSession givenKeycloakSession() {
-        return mock(KeycloakSession.class);
+        KeycloakSession session = mock(KeycloakSession.class);
+        KeycloakContext context = mock(KeycloakContext.class);
+        when(session.getContext()).thenReturn(context);
+        ClientModel client = mock(ClientModel.class);
+        when(context.getClient()).thenReturn(client);    
+        return session;
     }
 
     private AccessToken transformAccessToken(KeycloakSession keycloakSession, UserSessionModel userSessionModel) {
