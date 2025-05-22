@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:25.0.6 AS build
+FROM quay.io/keycloak/keycloak:26.2.4 AS build
 
 ARG RELEASE=24.0.5
 ARG GITHUB_TOKEN
@@ -22,7 +22,7 @@ RUN /opt/keycloak/bin/kc.sh build \
     # This should eventually be removed, but only after all clients have been migrated
     --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
 
-FROM quay.io/keycloak/keycloak:19.0.3 AS release
+FROM quay.io/keycloak/keycloak:26.2.4 AS release
 
 COPY --from=build /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
