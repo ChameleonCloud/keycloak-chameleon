@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:24.0.5 AS build
+FROM quay.io/keycloak/keycloak:25.0.6 AS build
 
 ARG RELEASE=24.0.5
 ARG GITHUB_TOKEN
