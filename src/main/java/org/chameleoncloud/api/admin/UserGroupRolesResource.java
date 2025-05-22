@@ -7,6 +7,8 @@ import org.keycloak.authorization.model.Policy;
 import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.authorization.model.Scope;
 import org.keycloak.authorization.store.PolicyStore;
+import org.keycloak.models.ClientModel;
+import org.keycloak.models.Constants;
 import org.keycloak.models.GroupModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -351,8 +353,8 @@ public class UserGroupRolesResource {
         session.users().getGroupMembersStream(realm, group)
                 .forEach(member -> result.put(member.getUsername(), UserGroupRoles.MEMBER));
 
-        ResourceServer resourceServer = adminPermissionManagement.clients()
-                .resourceServer(adminPermissionManagement.getRealmManagementClient());
+        ClientModel client = session.clients().getClientById(realm, Constants.REALM_MANAGEMENT_CLIENT_ID);
+        ResourceServer resourceServer = adminPermissionManagement.clients().resourceServer(client);
 
         Policy adminPolicy = policyStore.findByName(resourceServer,
                 UserGroupRoles.formatPolicyName(UserGroupRoles.ADMIN, groupId));
