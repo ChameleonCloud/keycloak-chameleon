@@ -1,9 +1,6 @@
 package org.chameleoncloud.api.admin;
 
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.spi.HttpRequest;
-import org.jboss.resteasy.spi.HttpResponse;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.services.resources.admin.AdminRoot;
@@ -12,6 +9,7 @@ import org.keycloak.services.resources.admin.permissions.AdminPermissions;
 
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 
 public class ChameleonAdminRoot extends AdminRoot {
 
@@ -23,16 +21,12 @@ public class ChameleonAdminRoot extends AdminRoot {
     }
 
     @Path("user-group-roles")
-    public UserGroupRolesResource userGroupRoles(@Context final HttpRequest request,
-                                                 @Context HttpResponse response) {
+    public UserGroupRolesResource userGroupRoles(@Context HttpHeaders headers) {
         RealmModel realm = session.getContext().getRealm();
         AdminPermissionEvaluator auth = AdminPermissions.evaluator(session, realm,
-                authenticateRealmAdminRequest(request.getHttpHeaders()));
+                authenticateRealmAdminRequest(headers));
 
-        UserGroupRolesResource resource = new UserGroupRolesResource(session, auth, realm);
-        ResteasyProviderFactory.getInstance().injectProperties(resource);
-
-        return resource;
+        return new UserGroupRolesResource(session, auth, realm);
     }
 
 }

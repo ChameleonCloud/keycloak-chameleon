@@ -1,6 +1,5 @@
 package org.chameleoncloud;
 
-import org.jboss.resteasy.annotations.cache.NoCache;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.forms.login.freemarker.FreeMarkerLoginFormsProvider;
 import org.keycloak.forms.login.freemarker.model.ClientBean;
@@ -11,6 +10,7 @@ import org.keycloak.services.resource.RealmResourceProvider;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.Response;
 
 public class PostLogoutPageProvider implements RealmResourceProvider {
@@ -26,7 +26,6 @@ public class PostLogoutPageProvider implements RealmResourceProvider {
     }
 
     @GET
-    @NoCache
     public Response get(@QueryParam("client_id") String clientId) {
         final LoginFormsProvider form = new FreeMarkerLoginFormsProvider(session);
 
@@ -38,7 +37,10 @@ public class PostLogoutPageProvider implements RealmResourceProvider {
             }
         }
 
-        return form.createForm("post-logout.ftl");
+        Response r = form.createForm("post-logout.ftl");
+        CacheControl cc = new CacheControl();
+        cc.setNoCache(true);
+        return Response.fromResponse(r).cacheControl(cc).build();
     }
 
     @Override

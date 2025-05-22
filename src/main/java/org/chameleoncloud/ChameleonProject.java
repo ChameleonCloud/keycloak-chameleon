@@ -2,8 +2,6 @@ package org.chameleoncloud;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.validation.constraints.NotNull;
-
 public class ChameleonProject implements Comparable<ChameleonProject> {
     @JsonProperty("id")
     protected String id;
@@ -17,7 +15,10 @@ public class ChameleonProject implements Comparable<ChameleonProject> {
     }
 
     @Override
-    public int compareTo(@NotNull ChameleonProject o) {
+    public int compareTo(ChameleonProject o) {
+        if (o == null) {
+            return 1;
+        }
         return this.id.compareTo(o.id);
     }
 }

@@ -1,7 +1,6 @@
 package org.chameleoncloud.api.admin;
 
 import org.chameleoncloud.representations.UserGroupRoles;
-import org.jboss.resteasy.annotations.cache.NoCache;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.keycloak.authorization.model.Policy;
@@ -19,6 +18,7 @@ import org.keycloak.services.resources.admin.permissions.AdminPermissions;
 import org.keycloak.services.resources.admin.permissions.GroupPermissionManagement;
 
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.*;
@@ -183,7 +183,6 @@ public class UserGroupRolesResource {
 
     @GET
     @Path("user/{user}")
-    @NoCache
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserGroupRoles(@QueryParam("group") String groupId,
                                       @PathParam("user") String userId) {
@@ -253,7 +252,9 @@ public class UserGroupRolesResource {
             }
         }
 
-        return Response.status(Response.Status.OK).entity(result).build();
+        CacheControl cc = new CacheControl();
+        cc.setNoCache(true);
+        return Response.status(Response.Status.OK).entity(result).cacheControl(cc).build();
     }
 
     @PUT
@@ -336,7 +337,6 @@ public class UserGroupRolesResource {
 
     @GET
     @Path("group/{group}")
-    @NoCache
     @Produces(MediaType.APPLICATION_JSON)
     public Response getGroupMemberRoles(@PathParam("group") String groupId) {
 
@@ -387,7 +387,9 @@ public class UserGroupRolesResource {
             }
         }
 
-        return Response.status(Response.Status.OK).entity(result).build();
+        CacheControl cc = new CacheControl();
+        cc.setNoCache(true);
+        return Response.status(Response.Status.OK).entity(result).cacheControl(cc).build();
     }
 
 }
