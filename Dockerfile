@@ -1,6 +1,6 @@
 FROM quay.io/keycloak/keycloak:26.2.4 AS build
 
-ARG RELEASE=24.0.5
+ARG RELEASE=26.2.4
 ARG GITHUB_TOKEN
 
 ENV KC_HEALTH_ENABLED=true
