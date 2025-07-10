@@ -14,6 +14,8 @@ ENV KC_PROXY=edge
 ADD --chown=keycloak https://_:${GITHUB_TOKEN}@maven.pkg.github.com/ChameleonCloud/keycloak-chameleon/org/chameleoncloud/keycloak-chameleon/${RELEASE}/keycloak-chameleon-${RELEASE}-jar-with-dependencies.jar /opt/keycloak/providers
 # Install MariaDB driver
 ADD --chown=keycloak https://dlm.mariadb.com/2531428/Connectors/java/connector-java-3.0.8/mariadb-java-client-3.0.8.jar /usr/share/java
+# Install JDBC drivers
+ADD --chown=keycloak:keycloak --chmod=644 https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/9.3.0/mysql-connector-j-9.3.0.jar /opt/keycloak/providers
 RUN /opt/keycloak/bin/kc.sh build \
     --spi-chameleon-extended-api-enabled=true \
     --spi-chameleon-post-logout-page-enabled=true \
