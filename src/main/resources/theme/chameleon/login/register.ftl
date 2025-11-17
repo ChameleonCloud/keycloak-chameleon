@@ -11,8 +11,7 @@
       </div>
         <#if social.providers??>
             <#assign globus = social.providers?filter(p -> p.alias == "globus")?first!"missing">
-            <#assign tacc = social.providers?filter(p -> p.alias == "tacc")?first!"missing">
-            <#if globus != "missing" && tacc != "missing">
+            <#if globus != "missing">
                 <#-- Registration workflow -->
                 <div class="kc-form-login-main-option">
                     <a href="${globus.loginUrl}" class="btn btn-primary btn-xlg">
@@ -26,9 +25,6 @@
                     </a>
                     <a href="${globus.loginUrl}" class="btn btn-default btn-lg">
                         <img src="${url.resourcesPath}/img/orcid_logo.svg" alt="ORCiD logo" /><span>ORCiD</span>
-                    </a>
-                    <a href="${tacc.loginUrl}" class="btn btn-default btn-lg">
-                        <span>TAS</span>
                     </a>
                 </div>
             <#else>
