@@ -16,7 +16,6 @@
     </p>
     <ul>
       <li><strong>Globus</strong>: <a href="https://auth.globus.org/v2/web/logout" title="Log out of Globus" rel="noopener noreferrer" target="_blank">logout</a>
-      <li><strong>TAS</strong>: <a href="https://identity.tacc.cloud/auth/realms/chameleon/protocol/openid-connect/logout" title="Log out of TAS" rel="noopener noreferrer" target="_blank">logout</a>
     </ul>
     <p>
       You may still have active sessions on other Chameleon applications or
