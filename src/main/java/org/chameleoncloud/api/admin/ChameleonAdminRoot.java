@@ -4,12 +4,10 @@ import org.jboss.logging.Logger;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.services.resources.admin.AdminRoot;
-import org.keycloak.services.resources.admin.permissions.AdminPermissionEvaluator;
-import org.keycloak.services.resources.admin.permissions.AdminPermissions;
+import org.keycloak.services.resources.admin.fgap.AdminPermissionEvaluator;
+import org.keycloak.services.resources.admin.fgap.AdminPermissions;
 
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
 
 public class ChameleonAdminRoot extends AdminRoot {
 
@@ -21,10 +19,10 @@ public class ChameleonAdminRoot extends AdminRoot {
     }
 
     @Path("user-group-roles")
-    public UserGroupRolesResource userGroupRoles(@Context HttpHeaders headers) {
+    public UserGroupRolesResource userGroupRoles() {
         RealmModel realm = session.getContext().getRealm();
         AdminPermissionEvaluator auth = AdminPermissions.evaluator(session, realm,
-                authenticateRealmAdminRequest(headers));
+                authenticateRealmAdminRequest(session));
 
         return new UserGroupRolesResource(session, auth, realm);
     }
