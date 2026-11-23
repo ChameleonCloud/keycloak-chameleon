@@ -166,6 +166,17 @@ public class ChameleonProjectMapperTest {
             this.name = name;
         }
 
+        public String getDescription() {
+            return null;
+        }
+
+        public void setDescription(String description) {
+        }
+
+        public OrganizationModel getOrganization() {
+            return null;
+        }
+
         public void setSingleAttribute(String name, String value) {
             if (value == null) {
                 setAttribute(name, List.of());

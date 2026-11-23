@@ -15,9 +15,9 @@
         see https://github.com/keycloak/keycloak/blob/master/pom.xml
         -->
         <resteasy.version>4.7.7.Final</resteasy.version>
-        <keycloak.version>26.2.4</keycloak.version>
+        <keycloak.version>26.8.2</keycloak.version>
         <!-- the version of this build and all depending projects-->
-        <revision>26.2.4</revision>
+        <revision>26.8.2</revision>
     </properties>
 
     <build>
